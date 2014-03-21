@@ -92,19 +92,19 @@ __Vectors:
                 .long    PendSV_Handler                     /*  -2 PendSV Handler */
                 .long    SysTick_Handler                    /*  -1 SysTick Handler */
 
-                /* Interrupts */
-                .long    Interrupt0_Handler                 /*   0 Interrupt 0 */
-                .long    Interrupt1_Handler                 /*   1 Interrupt 1 */
-                .long    Interrupt2_Handler                 /*   2 Interrupt 2 */
-                .long    Interrupt3_Handler                 /*   3 Interrupt 3 */
-                .long    Interrupt4_Handler                 /*   4 Interrupt 4 */
-                .long    Interrupt5_Handler                 /*   5 Interrupt 5 */
-                .long    Interrupt6_Handler                 /*   6 Interrupt 6 */
-                .long    Interrupt7_Handler                 /*   7 Interrupt 7 */
-                .long    Interrupt8_Handler                 /*   8 Interrupt 8 */
-                .long    Interrupt9_Handler                 /*   9 Interrupt 9 */
+		/* External interrupts */
+#define EXPAND_RESERVED(x_)		.long	0
+#define EXPAND_IRQ_REFERENCE(x_)		.long	x_##_IRQHandler
+#if (NRF52832 - 0)
+#include <nrfcxx/internal/nrf52832/vector_table.inc>
+#elif (NRF52840 - 0)
+#include <nrfcxx/internal/nrf52840/vector_table.inc>
+#else /* NRF52xxx */
+#error Unsupported NRF52 MCU
+#endif /* NRF52xxx */
+#undef EXPAND_IRQ_REFERENCE
+#undef EXPAND_RESERVED
 
-                .space   (214 * 4)                          /* Interrupts 10 .. 224 are left out */
 __Vectors_End:
                 .equ     __Vectors_Size, __Vectors_End - __Vectors
                 .size    __Vectors, . - __Vectors
@@ -275,16 +275,15 @@ Default_Handler:
                 Set_Default_Handler  PendSV_Handler
                 Set_Default_Handler  SysTick_Handler
 
-                Set_Default_Handler  Interrupt0_Handler
-                Set_Default_Handler  Interrupt1_Handler
-                Set_Default_Handler  Interrupt2_Handler
-                Set_Default_Handler  Interrupt3_Handler
-                Set_Default_Handler  Interrupt4_Handler
-                Set_Default_Handler  Interrupt5_Handler
-                Set_Default_Handler  Interrupt6_Handler
-                Set_Default_Handler  Interrupt7_Handler
-                Set_Default_Handler  Interrupt8_Handler
-                Set_Default_Handler  Interrupt9_Handler
+#define EXPAND_IRQ_REFERENCE(x_)		Set_Default_Handler x_##_IRQHandler
+#define EXPAND_RESERVED(x_)
+#if (NRF52832 - 0)
+#include <nrfcxx/internal/nrf52832/vector_table.inc>
+#elif (NRF52840 - 0)
+#include <nrfcxx/internal/nrf52840/vector_table.inc>
+#endif /* NRF52xxx */
+#undef EXPAND_IRQ_REFERENCE
+#undef EXPAND_RESERVED
 
 
                 .end
