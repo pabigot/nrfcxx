@@ -1,9 +1,7 @@
-/* Linker script to configure memory regions. */
-MEMORY
-{
-  FLASH (rx)  : ORIGIN = 0x00000000, LENGTH = 512K
-  RAM   (rwx) : ORIGIN = 0x20000000, LENGTH = 256K
-}
+/* !! MODIFIED to support nrfcxx */
+
+/* The appropriate memory.ld file must have already been provided by
+ * a command-line argument. */
 
 /* Linker script to place sections and symbol values. Should be used together
  * with other linker script that defines memory regions FLASH and RAM.
