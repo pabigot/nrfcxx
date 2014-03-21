@@ -259,7 +259,18 @@ Default_Handler:
  */
                 .macro   Set_Default_Handler  Handler_Name
                 .weak    \Handler_Name
+#if (__STARTUP_USE_SHARED_DEFAULT_HANDLER - 0)
+/* Just reference the default handler */
                 .set     \Handler_Name, Default_Handler
+#else /* __STARTUP_USE_SHARED_DEFAULT_HANDLER */
+/* Provide a unique default handler for each candidate so
+ * we can use the debugger to figure out which handler we
+ * forgot to provide. */
+                .type    \Handler_Name, %function
+\Handler_Name:
+                b        .
+                .size    \Handler_Name, . - \Handler_Name
+#endif /* __STARTUP_USE_SHARED_DEFAULT_HANDLER */
                 .endm
 
 
