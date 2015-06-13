@@ -240,6 +240,7 @@ Reset_Handler:
                 bl       SystemInit
                 bl       _start
 
+                .cantunwind
                 .fnend
                 .size    Reset_Handler, . - Reset_Handler
 
