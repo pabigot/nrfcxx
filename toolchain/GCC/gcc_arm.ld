@@ -16,6 +16,8 @@
  *   __zero_table_start__
  *   __zero_table_end__
  *   __etext
+ *   __noinit_start__
+ *   __noinit_end__
  *   __data_start__
  *   __preinit_array_start
  *   __preinit_array_end
@@ -114,6 +116,15 @@ SECTIONS
 	   __etext is assumed by startup code to be the LMA of a section in RAM
 	   which must be 4byte aligned */
 	__etext = ALIGN (4);
+
+	.noinit (NOLOAD) :
+	{
+		. = ALIGN(4);
+		__noinit_start__ = .;
+		*(SORT(.noinit*))
+		. = ALIGN(4);
+		__noinit_end__ = .;
+	} > RAM
 
 	.data : AT (__etext)
 	{
