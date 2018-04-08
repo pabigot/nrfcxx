@@ -34,6 +34,8 @@
  *   __StackLimit
  *   __StackTop
  *   __stack
+ *   __PersistBase
+ *   __PersistLimit
  */
 ENTRY(Reset_Handler)
 
@@ -116,6 +118,19 @@ SECTIONS
 	   __etext is assumed by startup code to be the LMA of a section in RAM
 	   which must be 4byte aligned */
 	__etext = ALIGN (4);
+
+	/* Material placed in a memory region within the flash memory
+	 * of the application, intended to be preserved across resets
+	 * and application updates.  Objects should be page-aligned;
+	 * this is enforced within the nrfcxx::utility::Persist
+	 * implementation. */
+	.persist (NOLOAD) :
+	{
+		__PersistBase = ORIGIN(PERSIST);
+		KEEP(*(.persist))
+		KEEP(*(SORT(.persist.*)))
+		__PersistLimit = ORIGIN(PERSIST) + LENGTH(PERSIST);
+	} > PERSIST
 
 	.noinit (NOLOAD) :
 	{
