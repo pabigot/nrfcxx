@@ -9,6 +9,7 @@
  *   Reset_Handler : Entry of reset handler
  *
  * It defines following symbols, which code can use without definition:
+ *   __stext
  *   __exidx_start
  *   __exidx_end
  *   __copy_table_start__
@@ -43,6 +44,7 @@ SECTIONS
 {
 	.text :
 	{
+		__stext = .;
 		KEEP(*(.vectors))
 		*(.text*)
 
