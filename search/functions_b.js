@@ -1,0 +1,25 @@
+var searchData=
+[
+  ['latest_5fsr',['latest_sr',['../classnrfcxx_1_1periph_1_1QSPI.html#a600a7ab031a5c618151544313e0b7c3d',1,'nrfcxx::periph::QSPI']]],
+  ['led_5fconfiguration',['led_configuration',['../classnrfcxx_1_1misc_1_1sx1509b.html#af075c8c38de61f266cadf6a164a36d0d',1,'nrfcxx::misc::sx1509b::led_configuration(unsigned int psel, led_type &amp;cfg) const noexcept'],['../classnrfcxx_1_1misc_1_1sx1509b.html#a44957d5eaa9964fca4b7b3cc22fa6a7a',1,'nrfcxx::misc::sx1509b::led_configuration(unsigned int psel, led_pwm_type &amp;cfg) const noexcept']]],
+  ['led_5fconfigure',['led_configure',['../classnrfcxx_1_1misc_1_1sx1509b.html#a041c85975d11ad9b4d24869d16d9a712',1,'nrfcxx::misc::sx1509b::led_configure(unsigned int psel, const led_type &amp;cfg) const noexcept'],['../classnrfcxx_1_1misc_1_1sx1509b.html#a0b7f24b6aa927b2d07e8112af42c3d8d',1,'nrfcxx::misc::sx1509b::led_configure(unsigned int psel, const led_pwm_type &amp;cfg) const noexcept']]],
+  ['led_5fdriver_5fcache',['led_driver_cache',['../classnrfcxx_1_1misc_1_1sx1509b.html#a7a30573b5b6322a3ccd9320f4467e3a8',1,'nrfcxx::misc::sx1509b']]],
+  ['led_5fsetup_5fbattery_5fdisplay',['led_setup_battery_display',['../namespacenrfcxx_1_1board.html#a8df1b0e59ba2a79e694bb9e45474a3cb',1,'nrfcxx::board']]],
+  ['lipo_5fmonitor',['lipo_monitor',['../classnrfcxx_1_1misc_1_1lipo__monitor.html#af46ab4aea85957905b5dd738bbf246db',1,'nrfcxx::misc::lipo_monitor']]],
+  ['live_5fstate',['live_state',['../classnrfcxx_1_1sensor_1_1contact.html#aeea3e1fd26c783d98cfd3af6c5769c01',1,'nrfcxx::sensor::contact']]],
+  ['lookup',['lookup',['../classnrfcxx_1_1led_1_1led__type.html#a615e078ecd377e574b37c82fca4c3058',1,'nrfcxx::led::led_type']]],
+  ['loops',['loops',['../classnrfcxx_1_1led_1_1Pattern.html#ac33d92ca7e2d42043b8feeb085af8923',1,'nrfcxx::led::Pattern']]],
+  ['lost_5fdrdy',['lost_drdy',['../classnrfcxx_1_1sensor_1_1hts221.html#a7f2ffce205c74ec3304d03e7b3d62e6e',1,'nrfcxx::sensor::hts221::lost_drdy()'],['../classnrfcxx_1_1sensor_1_1lps22hb.html#a845e28d96a433f5e683cce79e1959b83',1,'nrfcxx::sensor::lps22hb::lost_drdy()']]],
+  ['lps22hb',['lps22hb',['../classnrfcxx_1_1sensor_1_1lps22hb.html#a33f0d157b6a0f69b01b0cfd8fb87cc0b',1,'nrfcxx::sensor::lps22hb']]],
+  ['lpsm_5fbypass_5fcalibration',['lpsm_bypass_calibration',['../classnrfcxx_1_1sensor_1_1adc_1_1lpsm__wrapper.html#ac1c77e5dec012b69d3b75fbe5cd28bdb',1,'nrfcxx::sensor::adc::lpsm_wrapper']]],
+  ['lpsm_5fcalibrate',['lpsm_calibrate',['../classnrfcxx_1_1sensor_1_1adc_1_1lpsm__wrapper.html#aaa5d7f34f1ae186113fa1daf81c8294e',1,'nrfcxx::sensor::adc::lpsm_wrapper']]],
+  ['lpsm_5fcapable',['lpsm_capable',['../classnrfcxx_1_1lpm_1_1lpsm__capable.html#a49ceddad12610b297ff7acf3a836ed3c',1,'nrfcxx::lpm::lpsm_capable']]],
+  ['lpsm_5fprocess',['lpsm_process',['../classnrfcxx_1_1lpm_1_1lpsm__capable.html#a34edb4653186ab238b357b77830b22e3',1,'nrfcxx::lpm::lpsm_capable']]],
+  ['lpsm_5fprocess_5f',['lpsm_process_',['../classnrfcxx_1_1lpm_1_1lpsm__capable.html#af248c4adaf5ee6cc6e7c9d172dea55d1',1,'nrfcxx::lpm::lpsm_capable']]],
+  ['lpsm_5fprocess_5frc',['lpsm_process_rc',['../classnrfcxx_1_1lpm_1_1lpsm__capable.html#a7fed75b260df1179221fbd931342dd1e',1,'nrfcxx::lpm::lpsm_capable']]],
+  ['lpsm_5freset_5f',['lpsm_reset_',['../classnrfcxx_1_1lpm_1_1lpsm__capable.html#a8f580ed4d65fb7a46aa269bc250f2bc2',1,'nrfcxx::lpm::lpsm_capable']]],
+  ['lpsm_5fsample',['lpsm_sample',['../classnrfcxx_1_1lpm_1_1lpsm__capable.html#a9dfab0d941f711be66bdb02b2642336b',1,'nrfcxx::lpm::lpsm_capable::lpsm_sample()'],['../classnrfcxx_1_1sensor_1_1hts221.html#a7168be80a5614da1c2dd9be0e0ac67a7',1,'nrfcxx::sensor::hts221::lpsm_sample()'],['../classnrfcxx_1_1sensor_1_1lps22hb.html#ab92aea208a193dc537965ee85f6dc9bd',1,'nrfcxx::sensor::lps22hb::lpsm_sample()']]],
+  ['lpsm_5fstart',['lpsm_start',['../classnrfcxx_1_1lpm_1_1lpsm__capable.html#ab40c73125317a1e2f4bd6f0faba6f6a8',1,'nrfcxx::lpm::lpsm_capable']]],
+  ['lpsm_5fstop',['lpsm_stop',['../classnrfcxx_1_1lpm_1_1lpsm__capable.html#a42d4f6beb43b3cf9dbc77b3c3849aa0d',1,'nrfcxx::lpm::lpsm_capable']]],
+  ['lpsm_5fwrapper',['lpsm_wrapper',['../classnrfcxx_1_1sensor_1_1adc_1_1lpsm__wrapper.html#a679c7e50176fea62fc50f89e08139785',1,'nrfcxx::sensor::adc::lpsm_wrapper']]]
+];

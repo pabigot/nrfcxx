@@ -1,0 +1,25 @@
+var searchData=
+[
+  ['r1_5fohm',['r1_Ohm',['../classnrfcxx_1_1sensor_1_1adc_1_1voltage__divider.html#ae90d33489558aa743aff37d9108259ed',1,'nrfcxx::sensor::adc::voltage_divider']]],
+  ['r2_5fohm',['r2_Ohm',['../classnrfcxx_1_1sensor_1_1adc_1_1voltage__divider.html#a3c2cda067db1782e704bd0390909dde7',1,'nrfcxx::sensor::adc::voltage_divider']]],
+  ['radio_5fn16',['radio_n16',['../structnrfcxx_1_1sd_1_1TelemetryBeacon_1_1frame__s.html#a38f7d301b7effbeda377bada8f045841',1,'nrfcxx::sd::TelemetryBeacon::frame_s']]],
+  ['rate_5fdenom',['RATE_DENOM',['../classnrfcxx_1_1clock_1_1clock__shift.html#a9b036546babdfe538df96a36df2c9dbf',1,'nrfcxx::clock::clock_shift']]],
+  ['raw',['raw',['../structnrfcxx_1_1sensor_1_1ccs811_1_1observations__type.html#ab815a8642c8dd07aa59b6b1e4ea0967a',1,'nrfcxx::sensor::ccs811::observations_type']]],
+  ['ready',['ready',['../classnrfcxx_1_1sd_1_1GenericBeacon.html#a87b6ff42701283a403a673f3d297179e',1,'nrfcxx::sd::GenericBeacon']]],
+  ['region_5fbegin',['REGION_BEGIN',['../classnrfcxx_1_1utility_1_1Persist.html#af31805999e6d2f4b696361143a6192c7',1,'nrfcxx::utility::Persist']]],
+  ['region_5fend',['REGION_END',['../classnrfcxx_1_1utility_1_1Persist.html#a613720a9c416c9b849665ed4cef270ce',1,'nrfcxx::utility::Persist']]],
+  ['reset_5fcnt',['reset_cnt',['../structnrfcxx_1_1sd_1_1TelemetryBeacon_1_1frame__s.html#a15408fe48bb7e01e7fb84d0228585457',1,'nrfcxx::sd::TelemetryBeacon::frame_s']]],
+  ['reset_5fcount',['reset_count',['../structnrfcxx_1_1systemState_1_1state__type.html#acc97472c4ca1cbd7e125211591fef43d',1,'nrfcxx::systemState::state_type::reset_count()'],['../structnrfcxx_1_1sd_1_1SystemStateBeacon_1_1frame__s.html#ac85c0781b167408af7f7c987e7e94e8a',1,'nrfcxx::sd::SystemStateBeacon::frame_s::reset_count()']]],
+  ['reset_5fdelay_5fms',['RESET_DELAY_ms',['../classnrfcxx_1_1sensor_1_1sdp8xx.html#aefe826b4c6ea318464346977c0b3d38b',1,'nrfcxx::sensor::sdp8xx::RESET_DELAY_ms()'],['../classnrfcxx_1_1sensor_1_1sht21.html#a53a2c26bb6ddb048272af589f0129b33',1,'nrfcxx::sensor::sht21::RESET_DELAY_ms()']]],
+  ['reset_5fdelay_5fus',['RESET_DELAY_us',['../classnrfcxx_1_1sensor_1_1ccs811.html#a89883c98ad16213f1808a06682b1dae1',1,'nrfcxx::sensor::ccs811']]],
+  ['reset_5freas',['reset_reas',['../structnrfcxx_1_1systemState_1_1state__type.html#a0026b2d4a824a6650805b369cd4803b0',1,'nrfcxx::systemState::state_type::reset_reas()'],['../structnrfcxx_1_1sd_1_1SystemStateBeacon_1_1frame__s.html#a9849b3d21da4130714e9be0371850b70',1,'nrfcxx::sd::SystemStateBeacon::frame_s::reset_reas()']]],
+  ['reset_5futt',['reset_utt',['../structnrfcxx_1_1sensor_1_1ccs811_1_1retained__state__type.html#ae8e419a87f435cd99747c21594d262ca',1,'nrfcxx::sensor::ccs811::retained_state_type']]],
+  ['resetn',['resetn',['../structnrfcxx_1_1sensor_1_1ccs811_1_1iface__config__type.html#ae96a27e858f6750ac70d22f1e4bdeb8d',1,'nrfcxx::sensor::ccs811::iface_config_type']]],
+  ['resetn_5fpsel',['resetn_psel',['../structnrfcxx_1_1misc_1_1sx1509b_1_1iface__config__type.html#a6b42f285e6a9069557f6c3ad3e5641bd',1,'nrfcxx::misc::sx1509b::iface_config_type']]],
+  ['rx_5fbreak_5ferrors',['rx_break_errors',['../structnrfcxx_1_1periph_1_1UART_1_1statistics__type.html#a99e961924df76d073de57a10421b420c',1,'nrfcxx::periph::UART::statistics_type']]],
+  ['rx_5fcount',['rx_count',['../structnrfcxx_1_1periph_1_1UART_1_1statistics__type.html#aaa065f0cc63bcc57a21d5c20b300f11d',1,'nrfcxx::periph::UART::statistics_type']]],
+  ['rx_5fdropped',['rx_dropped',['../structnrfcxx_1_1periph_1_1UART_1_1statistics__type.html#ae7f63a24e8d22a47a70999f57aeee82c',1,'nrfcxx::periph::UART::statistics_type']]],
+  ['rx_5fframe_5ferrors',['rx_frame_errors',['../structnrfcxx_1_1periph_1_1UART_1_1statistics__type.html#ac7dc762775398f9164e640f20d3787d3',1,'nrfcxx::periph::UART::statistics_type']]],
+  ['rx_5foverrun_5ferrors',['rx_overrun_errors',['../structnrfcxx_1_1periph_1_1UART_1_1statistics__type.html#a1360c7cb72af63dfcd261a90cdf937eb',1,'nrfcxx::periph::UART::statistics_type']]],
+  ['rx_5fparity_5ferrors',['rx_parity_errors',['../structnrfcxx_1_1periph_1_1UART_1_1statistics__type.html#aa66f4c92b8cdb6133f73bd3bbc3d3e3c',1,'nrfcxx::periph::UART::statistics_type']]]
+];

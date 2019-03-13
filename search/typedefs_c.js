@@ -1,0 +1,9 @@
+var searchData=
+[
+  ['scoped_5fenabler',['scoped_enabler',['../classnrfcxx_1_1periph_1_1TWI.html#ae4e8f1e3c2bbae9ceaf66a213965e39e',1,'nrfcxx::periph::TWI::scoped_enabler()'],['../classnrfcxx_1_1periph_1_1SPI.html#a6e089bdcb0aab7704ac87b8dd6d98e56',1,'nrfcxx::periph::SPI::scoped_enabler()']]],
+  ['sense_5fcallback_5fbi',['sense_callback_bi',['../classnrfcxx_1_1periph_1_1GPIOTE.html#ad8bcddb3946f67e93b68328872af2073',1,'nrfcxx::periph::GPIOTE']]],
+  ['size_5ftype',['size_type',['../classnrfcxx_1_1periph_1_1UART.html#a06fa0f0e964763b00e32cb8d3e78175c',1,'nrfcxx::periph::UART::size_type()'],['../classnrfcxx_1_1periph_1_1details_1_1comm__error__support.html#a249d97fbd965fb92b5464b15706620b2',1,'nrfcxx::periph::details::comm_error_support::size_type()'],['../classnrfcxx_1_1periph_1_1SPI.html#ad853a48f48c6d1438b32d67a62fbab5b',1,'nrfcxx::periph::SPI::size_type()'],['../classnrfcxx_1_1periph_1_1QSPI.html#a188d3a992697fa265cda92a0fe02d65e',1,'nrfcxx::periph::QSPI::size_type()']]],
+  ['ssize_5ftype',['ssize_type',['../classnrfcxx_1_1periph_1_1UART.html#aea93f50757d17ffda4e3b2fa5e4f1f6a',1,'nrfcxx::periph::UART::ssize_type()'],['../classnrfcxx_1_1periph_1_1details_1_1comm__error__support.html#a8fdc018e5e026e93eac20b24706c5ba2',1,'nrfcxx::periph::details::comm_error_support::ssize_type()'],['../classnrfcxx_1_1periph_1_1SPI.html#ae09bf9dcab1f3237c92b5ca4aa94962d',1,'nrfcxx::periph::SPI::ssize_type()'],['../classnrfcxx_1_1periph_1_1QSPI.html#a9b1e45cc198049f87e2ac895081ee352',1,'nrfcxx::periph::QSPI::ssize_type()']]],
+  ['state_5ftype',['state_type',['../classnrfcxx_1_1lpm_1_1state__machine.html#af2ca8779e82c34676e98903014dcff7d',1,'nrfcxx::lpm::state_machine']]],
+  ['status_5ftype',['status_type',['../classnrfcxx_1_1sensor_1_1ccs811.html#a328932f17f7819e852473a047403474c',1,'nrfcxx::sensor::ccs811']]]
+];

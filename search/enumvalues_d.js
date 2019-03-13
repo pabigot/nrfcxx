@@ -1,0 +1,25 @@
+var searchData=
+[
+  ['sampling',['sampling',['../classnrfcxx_1_1periph_1_1ADC.html#a96a1d56559c20e8ce56b6859ed25666ca69fd5bfca825e08e984565972f1b073d',1,'nrfcxx::periph::ADC']]],
+  ['scheduled',['SCHEDULED',['../classnrfcxx_1_1sd_1_1Beacon.html#af4b37588bf2a43b6efb750ddbf3e893aa8a2c4f7dc44334a28f15d690f2fc3558',1,'nrfcxx::sd::Beacon']]],
+  ['scheduled_5fprepare',['SCHEDULED_PREPARE',['../classnrfcxx_1_1sd_1_1Beacon.html#af4b37588bf2a43b6efb750ddbf3e893aa5a3794feb83d71384c10a56ba759fc13',1,'nrfcxx::sd::Beacon']]],
+  ['sr_5fh_5fda',['SR_H_DA',['../classnrfcxx_1_1sensor_1_1hts221.html#afac0a4bf21a393aecb8e81fd212a563daf2a2a423dc7d5125b24ba8f916712e74',1,'nrfcxx::sensor::hts221']]],
+  ['sr_5fp_5fda',['SR_P_DA',['../classnrfcxx_1_1sensor_1_1lps22hb.html#a42113462417fb3bbdb2fcea1fa69c8aca51dd66f87287c3153647183fbc570e91',1,'nrfcxx::sensor::lps22hb']]],
+  ['sr_5fready',['SR_READY',['../classnrfcxx_1_1sensor_1_1hts221.html#afac0a4bf21a393aecb8e81fd212a563dab40e293b0c046af5982eed1a71776c24',1,'nrfcxx::sensor::hts221::SR_READY()'],['../classnrfcxx_1_1sensor_1_1lps22hb.html#a42113462417fb3bbdb2fcea1fa69c8acacd22426da578459315dfe415900ba0ed',1,'nrfcxx::sensor::lps22hb::SR_READY()']]],
+  ['sr_5ft_5fda',['SR_T_DA',['../classnrfcxx_1_1sensor_1_1hts221.html#afac0a4bf21a393aecb8e81fd212a563daf77792b85ff4398d1d50be6554acd6d7',1,'nrfcxx::sensor::hts221::SR_T_DA()'],['../classnrfcxx_1_1sensor_1_1lps22hb.html#a42113462417fb3bbdb2fcea1fa69c8acab3956bcc0d10a5a08663dbfedb3db93b',1,'nrfcxx::sensor::lps22hb::SR_T_DA()']]],
+  ['st_5fapp_5ferase',['ST_APP_ERASE',['../classnrfcxx_1_1sensor_1_1ccs811.html#a76d59b8bf72d0d68ab5276fcbf38f9e5ae7be2ced9f8ac073c1af2d85f5803d09',1,'nrfcxx::sensor::ccs811']]],
+  ['st_5fapp_5fvalid',['ST_APP_VALID',['../classnrfcxx_1_1sensor_1_1ccs811.html#a76d59b8bf72d0d68ab5276fcbf38f9e5acca5882b928dd6ca3f202f773a731b63',1,'nrfcxx::sensor::ccs811']]],
+  ['st_5fapp_5fverify',['ST_APP_VERIFY',['../classnrfcxx_1_1sensor_1_1ccs811.html#a76d59b8bf72d0d68ab5276fcbf38f9e5a0ad0b0c6ee5d30752c9eae026c7013d7',1,'nrfcxx::sensor::ccs811']]],
+  ['st_5fcancelled',['ST_cancelled',['../classnrfcxx_1_1clock_1_1alarm.html#a89c77d2d2f84abc5e8ab32db6259a187aa488090673e99ddc10de42f1f64895cb',1,'nrfcxx::clock::alarm']]],
+  ['st_5fdata_5fready',['ST_DATA_READY',['../classnrfcxx_1_1sensor_1_1ccs811.html#a76d59b8bf72d0d68ab5276fcbf38f9e5ad46611ace5f1ff9c6c186e506bc3a0be',1,'nrfcxx::sensor::ccs811']]],
+  ['st_5ferror',['ST_ERROR',['../classnrfcxx_1_1sensor_1_1ccs811.html#a76d59b8bf72d0d68ab5276fcbf38f9e5ac1923289b79d243733ed876ca3fc0b7d',1,'nrfcxx::sensor::ccs811']]],
+  ['st_5ffw_5fmode',['ST_FW_MODE',['../classnrfcxx_1_1sensor_1_1ccs811.html#a76d59b8bf72d0d68ab5276fcbf38f9e5a09acca32310e531a341c0252aadf581e',1,'nrfcxx::sensor::ccs811']]],
+  ['st_5fin_5fcallback',['ST_in_callback',['../classnrfcxx_1_1clock_1_1alarm.html#a89c77d2d2f84abc5e8ab32db6259a187aa7328d628b729f989325e88fa517166c',1,'nrfcxx::clock::alarm']]],
+  ['st_5fready',['ST_ready',['../classnrfcxx_1_1clock_1_1alarm.html#a89c77d2d2f84abc5e8ab32db6259a187a84a42cd6956c6afa4d66f587fc3e15b1',1,'nrfcxx::clock::alarm']]],
+  ['st_5fscheduled',['ST_scheduled',['../classnrfcxx_1_1clock_1_1alarm.html#a89c77d2d2f84abc5e8ab32db6259a187a1198849a88d6502334d22bb14a7a1808',1,'nrfcxx::clock::alarm']]],
+  ['st_5funscheduled',['ST_unscheduled',['../classnrfcxx_1_1clock_1_1alarm.html#a89c77d2d2f84abc5e8ab32db6259a187a8d87ec06648b45a8ad33dd20d8a0799c',1,'nrfcxx::clock::alarm']]],
+  ['stack_5foverflow',['STACK_OVERFLOW',['../namespacenrfcxx.html#a0c34d4f67cc579f14cc37908a6045c7eaaf5dcc114f4d3618802f0cd7bad2ccd8',1,'nrfcxx']]],
+  ['starting',['starting',['../classnrfcxx_1_1periph_1_1ADC.html#a96a1d56559c20e8ce56b6859ed25666ca1ee85f6c60017a7f0646ba8dc5824de6',1,'nrfcxx::periph::ADC']]],
+  ['stopping',['stopping',['../classnrfcxx_1_1periph_1_1ADC.html#a96a1d56559c20e8ce56b6859ed25666ca3b2a3c8ed19fc3647432e72885d633e7',1,'nrfcxx::periph::ADC']]],
+  ['system_5fbase',['SYSTEM_BASE',['../namespacenrfcxx.html#a0c34d4f67cc579f14cc37908a6045c7ea1375c400db9c2e6a4fb25806d6a7b562',1,'nrfcxx']]]
+];

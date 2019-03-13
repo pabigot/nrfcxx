@@ -1,0 +1,10 @@
+var searchData=
+[
+  ['valid',['valid',['../classnrfcxx_1_1gpio_1_1generic__pin.html#a35e9845f3ed9938a9fc5107f0f322b9a',1,'nrfcxx::gpio::generic_pin::valid()'],['../classnrfcxx_1_1gpio_1_1gpio__pin.html#aabf6911320ee144636687d149884ae8f',1,'nrfcxx::gpio::gpio_pin::valid()'],['../classnrfcxx_1_1gpio_1_1active__signal.html#aa285b56501e4a756b2219a55a935414f',1,'nrfcxx::gpio::active_signal::valid()'],['../classnrfcxx_1_1board_1_1iox__pin.html#a1ca6c551dceeffd71cb8ba0c404d2234',1,'nrfcxx::board::iox_pin::valid()']]],
+  ['validate',['validate',['../classnrfcxx_1_1sd_1_1Beacon.html#a812f2e33a91f4ecc8e4f5dd69cfed6e4',1,'nrfcxx::sd::Beacon']]],
+  ['validate_5fstack_5fpointer',['validate_stack_pointer',['../namespacenrfcxx.html#a9afa4a4a60da7f6f0aee3ce5246a5727',1,'nrfcxx']]],
+  ['vchg_5fdetected_5flive',['vchg_detected_live',['../classnrfcxx_1_1misc_1_1lipo__monitor.html#a8e7db7f505b0f547628a9c1c01d58ed5',1,'nrfcxx::misc::lipo_monitor']]],
+  ['vdd',['vdd',['../classnrfcxx_1_1sensor_1_1adc_1_1vdd.html#a279899bcbf05cb85e8e32ba5d4684f46',1,'nrfcxx::sensor::adc::vdd']]],
+  ['vdd_5fmv',['vdd_mV',['../classnrfcxx_1_1sd_1_1Broadcaster.html#a4148468d0fc4b38c73b9c99feca9827c',1,'nrfcxx::sd::Broadcaster::vdd_mV()'],['../classnrfcxx_1_1sensor_1_1adc_1_1vdd.html#a178ec414586fb7ca9427d7facabfc5a9',1,'nrfcxx::sensor::adc::vdd::vdd_mV()']]],
+  ['voltage_5fdivider',['voltage_divider',['../classnrfcxx_1_1sensor_1_1adc_1_1voltage__divider.html#aa9d54184916289bdeb9ec1b1055b97ad',1,'nrfcxx::sensor::adc::voltage_divider::voltage_divider(unsigned int r1_Ohm, unsigned int r2_Ohm, Iterator ains_begin, Iterator ains_end, volatile uint16_t *raw=nullptr)'],['../classnrfcxx_1_1sensor_1_1adc_1_1voltage__divider.html#ae7774c1d0caa0490c438ea736e5cc0fa',1,'nrfcxx::sensor::adc::voltage_divider::voltage_divider(unsigned int r1_Ohm, unsigned int r2_Ohm, uint8_t ain)'],['../classnrfcxx_1_1sensor_1_1adc_1_1voltage__divider.html#a99074ff3d23a1c57e0632d5820f91017',1,'nrfcxx::sensor::adc::voltage_divider::voltage_divider(unsigned int r1_Ohm, unsigned int r2_Ohm, std::initializer_list&lt; uint8_t &gt; ains, volatile uint16_t *raw=nullptr)']]]
+];
