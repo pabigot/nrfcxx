@@ -120,4 +120,5 @@ nor resets.
 This command issues a hard reset to the board.
 
 [meson]: https://mesonbuild.com/
+[nrfx]: https://github.com/NordicSemiconductor/nrfx
 [nrf5cli]: https://www.nordicsemi.com/Software-and-Tools/Development-Tools/nRF5-Command-Line-Tools
