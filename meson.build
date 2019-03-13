@@ -2,7 +2,7 @@
 # Copyright 2018-2019 Peter A. Bigot
 
 project('nrfcxx', ['cpp', 'c'],
-        version: '0.1.0',
+        version: '0.1.1-dev.20190313',
         default_options: [
           'c_std=c11',
           'cpp_std=c++17',
