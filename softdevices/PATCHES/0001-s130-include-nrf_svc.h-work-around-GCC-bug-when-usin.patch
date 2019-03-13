@@ -1,0 +1,37 @@
+From 36f8fac74d6e380674a86f4934f52cfbc9804054 Mon Sep 17 00:00:00 2001
+From: "Peter A. Bigot" <pab@pabigot.com>
+Date: Sun, 10 Mar 2019 12:36:38 -0500
+Subject: [PATCH 1/4] s130: include/nrf_svc.h: work around GCC bug when using
+ C++
+
+Compiling with ARM GCC in C++ mode produces a diagnostic:
+
+    .../nrf_svc.h:69:6: error: asm operand 0 probably doesn't match constraints [-Werror]
+
+Examining the history of S132 identifies the fix provided here, with the
+release notes documenting:
+
+    The SVCALL macro can now be used with the GCC C++ compiler as well
+    (DRGN-8028).
+
+Signed-off-by: Peter A. Bigot <pab@pabigot.com>
+---
+ s130_nrf51_2.0.1_API/include/nrf_svc.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/s130_nrf51_2.0.1_API/include/nrf_svc.h b/s130_nrf51_2.0.1_API/include/nrf_svc.h
+index c6413f3..48ee128 100644
+--- a/s130_nrf51_2.0.1_API/include/nrf_svc.h
++++ b/s130_nrf51_2.0.1_API/include/nrf_svc.h
+@@ -52,7 +52,7 @@ extern "C" {
+ #define SVCALL(number, return_type, signature) return_type __svc(number) signature
+ #elif defined (__GNUC__)
+ #ifdef __cplusplus
+-#define GCC_CAST_CPP (uint8_t)
++#define GCC_CAST_CPP (uint16_t)
+ #else
+ #define GCC_CAST_CPP    
+ #endif
+-- 
+2.17.1
+

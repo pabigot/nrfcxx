@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: CC0-1.0
+# Written in 2018-2019 by Peter A. Bigot
+/packagecache/
+/nrfx/
+/bme280/
+/googletest-release-1.8.0/
+/pabigot-cxx/

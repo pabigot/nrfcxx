@@ -1,0 +1,11 @@
+/*!
+\mainpage NRFCXX: C++-17 Framework for Nordic nRF5 Devices
+
+Start with the @ref nrfcxx namespace.
+
+Homepage: https://github.com/pabigot/nrfcxx
+
+Documentation: https://pabigot.github.io/nrfcxx
+
+\copyright Copyright 2014-2019, Peter A. Bigot.  Licensed under [Apache-2.0](http://opensource.org/licenses/Apache-2.0).
+ */

@@ -1,0 +1,12 @@
+#!/bin/sh
+# SPDX-License-Identifier: CC-BY-SA-4.0
+# Copyright 2018-2019 Peter A. Bigot
+#
+# Script to program a board with its softdevice.  The board must be erased.
+#
+
+JSN=${JSN:-$(nrfjprog -i | sort | sed 1q)}
+SERIES=$(echo ${1} | cut -c 1-5)
+
+set -x
+nrfjprog -s ${JSN} -f ${SERIES} --program ${2}

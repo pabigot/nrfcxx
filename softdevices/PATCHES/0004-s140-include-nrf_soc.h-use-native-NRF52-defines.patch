@@ -1,0 +1,35 @@
+From 230024b6af90cf10bf0ab1b035c45f02d052e541 Mon Sep 17 00:00:00 2001
+From: "Peter A. Bigot" <pab@pabigot.com>
+Date: Mon, 11 Mar 2019 07:00:10 -0500
+Subject: [PATCH 4/4] s140: include/nrf_soc.h: use native NRF52 defines
+
+Upstream implementation relies on presence of nrf51 legacy identifiers.
+
+Signed-off-by: Peter A. Bigot <pab@pabigot.com>
+---
+ s140_nrf52_6.1.1_API/include/nrf_soc.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/s140_nrf52_6.1.1_API/include/nrf_soc.h b/s140_nrf52_6.1.1_API/include/nrf_soc.h
+index beb4d3a..35f4f95 100644
+--- a/s140_nrf52_6.1.1_API/include/nrf_soc.h
++++ b/s140_nrf52_6.1.1_API/include/nrf_soc.h
+@@ -80,11 +80,11 @@ extern "C" {
+ #define SOC_ECB_CLEARTEXT_LENGTH          (16)                       /**< ECB cleartext length. */
+ #define SOC_ECB_CIPHERTEXT_LENGTH         (SOC_ECB_CLEARTEXT_LENGTH) /**< ECB ciphertext length. */
+ 
+-#define SD_EVT_IRQn                       (SWI2_IRQn)        /**< SoftDevice Event IRQ number. Used for both protocol events and SoC events. */
+-#define SD_EVT_IRQHandler                 (SWI2_IRQHandler)  /**< SoftDevice Event IRQ handler. Used for both protocol events and SoC events.
++#define SD_EVT_IRQn                       (SWI2_EGU2_IRQn)        /**< SoftDevice Event IRQ number. Used for both protocol events and SoC events. */
++#define SD_EVT_IRQHandler                 (SWI2_EGU2_IRQHandler)  /**< SoftDevice Event IRQ handler. Used for both protocol events and SoC events.
+                                                                        The default interrupt priority for this handler is set to 6 */
+-#define RADIO_NOTIFICATION_IRQn           (SWI1_IRQn)        /**< The radio notification IRQ number. */
+-#define RADIO_NOTIFICATION_IRQHandler     (SWI1_IRQHandler)  /**< The radio notification IRQ handler.
++#define RADIO_NOTIFICATION_IRQn           (SWI1_EGU1_IRQn)        /**< The radio notification IRQ number. */
++#define RADIO_NOTIFICATION_IRQHandler     (SWI1_EGU1_IRQHandler)  /**< The radio notification IRQ handler.
+                                                                        The default interrupt priority for this handler is set to 6 */
+ #define NRF_RADIO_LENGTH_MIN_US           (100)               /**< The shortest allowed radio timeslot, in microseconds. */
+ #define NRF_RADIO_LENGTH_MAX_US           (100000)            /**< The longest allowed radio timeslot, in microseconds. */
+-- 
+2.17.1
+

@@ -1,0 +1,24 @@
+# SPDX-License-Identifier: CC-BY-SA-4.0
+# Copyright 2018-2019 Peter A. Bigot
+
+# board specifies where to find the target board definition.  The
+# value may be a path to a directory containing an external board
+# configuration.  Otherwise the value must name a subdirectory of
+# `boards/` in the source workspace.
+#
+# The meson.build in that directory should define these variables:
+# * `device` string naming the standard nRF5 device identifier:
+#   `NRF51`, `NRF52832`, etc.
+# * `variant` string naming the MCU variant identifier, generally `AA`
+#   or `AC`
+# * `board_inc` an include_object that locates `<nrfcxx/board.hpp>`
+# * `board_src` a File array listing source files required for board
+#   support
+option('board',
+       type: 'string',
+       value: 'ble400',
+       description: 'Board definition to use: ble400, pca10028, pca10056, ...')
+
+# Local Variables:
+# mode:meson
+# End:

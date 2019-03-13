@@ -1,0 +1,48 @@
+# SPDX-License-Identifier: CC-BY-SA-4.0
+# Copyright 2018-2019 Peter A. Bigot
+
+[binaries]
+addr2line = 'arm-none-eabi-addr2line'
+ar = 'arm-none-eabi-ar'
+as = 'arm-none-eabi-as'
+# meson spells C++ "cpp", so disambiguate the compiler from the preprocessor
+#c++ = 'arm-none-eabi-c++'
+cpp = 'arm-none-eabi-c++'
+c++filt = 'arm-none-eabi-c++filt'
+#cpp = 'arm-none-eabi-cpp'
+elfedit = 'arm-none-eabi-elfedit'
+g++ = 'arm-none-eabi-g++'
+gcc = 'arm-none-eabi-gcc'
+c = 'arm-none-eabi-gcc'
+gcc-ar = 'arm-none-eabi-gcc-ar'
+gcc-nm = 'arm-none-eabi-gcc-nm'
+gcc-ranlib = 'arm-none-eabi-gcc-ranlib'
+gcov = 'arm-none-eabi-gcov'
+gcov-dump = 'arm-none-eabi-gcov-dump'
+gcov-tool = 'arm-none-eabi-gcov-tool'
+gdb = 'arm-none-eabi-gdb'
+gprof = 'arm-none-eabi-gprof'
+ld = 'arm-none-eabi-ld'
+ld.bfd = 'arm-none-eabi-ld.bfd'
+nm = 'arm-none-eabi-nm'
+objcopy = 'arm-none-eabi-objcopy'
+objdump = 'arm-none-eabi-objdump'
+ranlib = 'arm-none-eabi-ranlib'
+readelf = 'arm-none-eabi-readelf'
+size = 'arm-none-eabi-size'
+strings = 'arm-none-eabi-strings'
+strip = 'arm-none-eabi-strip'
+
+[properties]
+series = 'nrf52'
+mflags = ['-mthumb', '-mcpu=cortex-m4', '-mfloat-abi=hard', '-mfpu=fpv4-sp-d16']
+
+[host_machine]
+system = 'none'
+cpu_family = 'arm'
+cpu = 'cortex-m4'
+endian = 'little'
+
+# Local Variables:
+# mode:meson
+# End:

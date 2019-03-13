@@ -1,0 +1,77 @@
+From c367a1345820645dca80a891ec73c820d13d6222 Mon Sep 17 00:00:00 2001
+From: "Peter A. Bigot" <pab@pabigot.com>
+Date: Sun, 10 Mar 2019 12:37:39 -0500
+Subject: [PATCH 2/4] s130: include/ble_gatts.h: make structures const-correct
+
+Fields that point to data that is never mutated by the soft device
+should be declared so that the objects referenced can be stored in
+flash.
+
+This change was made in S132 in 5.0.0-2.alpha, but never provided in
+S130.
+
+Signed-off-by: Peter A. Bigot <pab@pabigot.com>
+---
+ s130_nrf51_2.0.1_API/include/ble_gatts.h | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
+
+diff --git a/s130_nrf51_2.0.1_API/include/ble_gatts.h b/s130_nrf51_2.0.1_API/include/ble_gatts.h
+index 38644e2..0897e9b 100644
+--- a/s130_nrf51_2.0.1_API/include/ble_gatts.h
++++ b/s130_nrf51_2.0.1_API/include/ble_gatts.h
+@@ -195,12 +195,12 @@ typedef struct
+ /**@brief GATT Attribute. */
+ typedef struct
+ {
+-  ble_uuid_t          *p_uuid;          /**< Pointer to the attribute UUID. */
+-  ble_gatts_attr_md_t *p_attr_md;       /**< Pointer to the attribute metadata structure. */
++  ble_uuid_t const    *p_uuid;          /**< Pointer to the attribute UUID. */
++  ble_gatts_attr_md_t const *p_attr_md; /**< Pointer to the attribute metadata structure. */
+   uint16_t             init_len;        /**< Initial attribute value length in bytes. */
+   uint16_t             init_offs;       /**< Initial attribute value offset in bytes. If different from zero, the first init_offs bytes of the attribute value will be left uninitialized. */
+   uint16_t             max_len;         /**< Maximum attribute value length in bytes, see @ref BLE_GATTS_ATTR_LENS_MAX for maximum values. */
+-  uint8_t*             p_value;         /**< Pointer to the attribute data. Please note that if the @ref BLE_GATTS_VLOC_USER value location is selected in the attribute metadata, this will have to point to a buffer
++  uint8_t const       *p_value;         /**< Pointer to the attribute data. Please note that if the @ref BLE_GATTS_VLOC_USER value location is selected in the attribute metadata, this will have to point to a buffer
+                                              that remains valid through the lifetime of the attribute. This excludes usage of automatic variables that may go out of scope or any other temporary location.
+                                              The stack may access that memory directly without the application's knowledge. For writable characteristics, this value must not be a location in flash memory.*/
+ } ble_gatts_attr_t;
+@@ -232,13 +232,13 @@ typedef struct
+ {
+   ble_gatt_char_props_t       char_props;               /**< Characteristic Properties. */
+   ble_gatt_char_ext_props_t   char_ext_props;           /**< Characteristic Extended Properties. */
+-  uint8_t                    *p_char_user_desc;         /**< Pointer to a UTF-8 encoded string (non-NULL terminated), NULL if the descriptor is not required. */
++  uint8_t const              *p_char_user_desc;         /**< Pointer to a UTF-8 encoded string (non-NULL terminated), NULL if the descriptor is not required. */
+   uint16_t                    char_user_desc_max_size;  /**< The maximum size in bytes of the user description descriptor. */
+   uint16_t                    char_user_desc_size;      /**< The size of the user description, must be smaller or equal to char_user_desc_max_size. */
+-  ble_gatts_char_pf_t*        p_char_pf;                /**< Pointer to a presentation format structure or NULL if the CPF descriptor is not required. */
+-  ble_gatts_attr_md_t*        p_user_desc_md;           /**< Attribute metadata for the User Description descriptor, or NULL for default values. */
+-  ble_gatts_attr_md_t*        p_cccd_md;                /**< Attribute metadata for the Client Characteristic Configuration Descriptor, or NULL for default values. */
+-  ble_gatts_attr_md_t*        p_sccd_md;                /**< Attribute metadata for the Server Characteristic Configuration Descriptor, or NULL for default values. */
++  ble_gatts_char_pf_t const  *p_char_pf;                /**< Pointer to a presentation format structure or NULL if the CPF descriptor is not required. */
++  ble_gatts_attr_md_t const  *p_user_desc_md;           /**< Attribute metadata for the User Description descriptor, or NULL for default values. */
++  ble_gatts_attr_md_t const  *p_cccd_md;                /**< Attribute metadata for the Client Characteristic Configuration Descriptor, or NULL for default values. */
++  ble_gatts_attr_md_t const  *p_sccd_md;                /**< Attribute metadata for the Server Characteristic Configuration Descriptor, or NULL for default values. */
+ } ble_gatts_char_md_t;
+ 
+ 
+@@ -259,7 +259,7 @@ typedef struct
+   uint8_t           type;               /**< Indication or Notification, see @ref BLE_GATT_HVX_TYPES. */
+   uint16_t          offset;             /**< Offset within the attribute value. */
+   uint16_t         *p_len;              /**< Length in bytes to be written, length in bytes written after successful return. */
+-  uint8_t          *p_data;             /**< Actual data content, use NULL to use the current attribute value. */
++  uint8_t const    *p_data;             /**< Actual data content, use NULL to use the current attribute value. */
+ } ble_gatts_hvx_params_t;
+ 
+ /**@brief GATT Authorization parameters. */
+@@ -271,7 +271,7 @@ typedef struct
+                                              as the data to be written needs to be stored and later provided by the application. */
+   uint16_t          offset;             /**< Offset of the attribute value being updated. */
+   uint16_t          len;                /**< Length in bytes of the value in p_data pointer, see @ref BLE_GATTS_ATTR_LENS_MAX. */
+-  const uint8_t    *p_data;             /**< Pointer to new value used to update the attribute value. */
++  uint8_t const    *p_data;             /**< Pointer to new value used to update the attribute value. */
+ } ble_gatts_authorize_params_t;
+ 
+ /**@brief GATT Read or Write Authorize Reply parameters. */
+-- 
+2.17.1
+

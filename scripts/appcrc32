@@ -1,0 +1,16 @@
+#!/bin/sh
+# SPDX-License-Identifier: CC-BY-SA-4.0
+# Copyright 2018-2019 Peter A. Bigot
+#
+# Usage:  appcrc32 path/to/*.elf
+
+for elf in "${@}" ; do
+  TMPFILE=$(mktemp)
+  arm-none-eabi-objcopy \
+    -Obinary \
+    ${elf} ${TMPFILE} \
+  || exit 1
+  echo -n "${elf} "
+  crc32 ${TMPFILE}
+  rm -f ${TMPFILE}
+done

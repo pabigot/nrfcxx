@@ -1,0 +1,33 @@
+PROJECT_NAME = @PROJECT@
+PROJECT_BRIEF = "C++-17 Framework for Nordic nRF5 Devices"
+PROJECT_NUMBER = @VERSION@
+OUTPUT_DIRECTORY = @DOCDIR@
+FULL_PATH_NAMES = YES
+STRIP_FROM_PATH = @TOP_SRCDIR@/include include
+STRIP_FROM_INC_PATH = @TOP_SRCDIR@/include include
+# Declaration support commands
+PREDEFINED = __attribute__(x)=
+# Use "#if defined(@PROJECT_UC@_DOXYGEN)" when providing a stub declaration
+# to which documentation is attached.
+# Use "/* @cond DOXYGEN_EXCLUDE */ ... /* @endcond */" around the real
+# declarations.
+PREDEFINED += "@PROJECT_UC@_DOXYGEN"
+MACRO_EXPANSION = YES
+EXPAND_ONLY_PREDEF = YES
+TAB_SIZE = 2
+OPTIMIZE_OUTPUT_FOR_C = YES
+JAVADOC_AUTOBRIEF = YES
+TYPEDEF_HIDES_STRUCT = NO
+GENERATE_LATEX = NO
+ALPHABETICAL_INDEX = YES
+RECURSIVE = YES
+EXTRACT_STATIC = YES
+EXAMPLE_PATH = examples/
+EXAMPLE_PATTERNS = *.h
+FILE_PATTERNS = *.h *.hpp *.*.dox
+EXCLUDE_PATTERNS = */nrfcxx/config.h
+INPUT = \
+    @TOP_SRCDIR@/doc/mainpage.dox \
+    @TOP_SRCDIR@/include/nrfcxx \
+    @TOP_SRCDIR@/board/thingy52/include/nrfcxx/board/thingy52.hpp \
+    @TOP_SRCDIR@/board/xenon/include/nrfcxx/board/xenon.hpp

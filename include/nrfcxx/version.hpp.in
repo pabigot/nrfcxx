@@ -1,0 +1,63 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+/* Copyright 2019 Peter A. Bigot */
+
+/** Package version information
+ *
+ * @file */
+
+#ifndef NRFCXX_VERSION_HPP
+#define NRFCXX_VERSION_HPP
+#pragma once
+
+#if (__cplusplus - 0) < 201703L
+#error This package requires C++17 or later
+#endif /* pre-C++17 */
+
+/** The version identifier for this library as a text string.
+ *
+ * Package versioning follows [semver](https://semver.org/).  Pre-release
+ * versions use a tag of the form `dev.YYYYMMDDXX`.  The macros
+ * #NRFCXX_VERSION_RELEASE and #NRFCXX_VERSION_DEVEL may be used to
+ * distinguish release and pre-release versions. */
+#define NRFCXX_VERSION "@VERSION@"
+
+/** Major component of version number.
+ *
+ * @see NRFCXX_VERSION_RELEASE
+ * @see NRFCXX_VERSION_DEVEL
+ */
+#define NRFCXX_VERSION_MAJOR @VERSION_MAJOR@
+
+/** Minor component of version number. */
+#define NRFCXX_VERSION_MINOR @VERSION_MINOR@
+
+/** Patch component of version number. */
+#define NRFCXX_VERSION_PATCH @VERSION_PATCH@
+
+/** @def NRFCXX_VERSION_RELEASE
+ *
+ * This macro is defined to a preprocessor true value when the package is a
+ * release version.  It is undefined when the package is a development version.
+ *
+ * @def NRFCXX_VERSION_DEVEL
+ *
+ * This macro is defined a monotonically non-decreasing integral value during a
+ * development series leading to a new release.  It is undefined when the
+ * package is a release version.
+ *
+ * The value is modified during a development series only when a change is made
+ * that would trigger a [semver](https://semver.org/) major or minor version
+ * change.  The value should be of the form `YYYYMMDDXX` encoding the date of
+ * the change plus a two-digit monotonically increasing subfield. */
+#define NRFCXX_VERSION_@VERSION_RELEASE@ @VERSION_DEVEL@L
+
+#if (NRFCXX_DOXYGEN - 0)
+#ifndef NRFCXX_VERSION_RELEASE
+#define NRFCXX_VERSION_RELEASE 0L
+#endif
+#ifndef NRFCXX_VERSION_DEVEL
+#define NRFCXX_VERSION_DEVEL 0L
+#endif
+#endif // NRFCXX_DOXYGEN
+
+#endif /* NRFCXX_CORE_HPP */

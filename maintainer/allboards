@@ -1,0 +1,12 @@
+#!/bin/bash
+# SPDX-License-Identifier: CC-BY-SA-4.0
+# Copyright 2018-2019 Peter A. Bigot
+#
+# Generate a clean meson build environment for every in-tree board.
+#
+
+for bp in $(cd board && find . -mindepth 1 -maxdepth 1 -type d ) ; do
+    bn=$(basename $bp)
+    rm -rf ${bn}
+    scripts/mkbuild ${bn}
+done

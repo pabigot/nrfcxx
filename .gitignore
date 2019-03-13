@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: CC0-1.0
+# Written in 2015-2019 by Peter A. Bigot
+# Ignore generated files related to programs
+*.elf
+*.map
+*.hex
+*.bin
+*.lst

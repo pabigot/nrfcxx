@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: CC0-1.0
+# Written in 2015-2019 by Peter A. Bigot
+
+[wrap-git]
+directory = nrfx
+url=https://github.com/pabigot/nrfx.git
+revision=pabigot/1.6.2

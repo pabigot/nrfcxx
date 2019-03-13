@@ -1,0 +1,28 @@
+#!/bin/sh
+# SPDX-License-Identifier: CC-BY-SA-4.0
+# Copyright 2018-2019 Peter A. Bigot
+#
+# Generate a build configuration for a supported board.
+#
+# Usage: scripts/mkbuild boardname [...other meson options]
+
+bn=${1}; shift
+CNF_FILE=board/${bn}/board.cnf
+if [ ! -f ${CNF_FILE} ] ; then
+  echo 1>&2 Configuration not found for board: ${bn}
+  exit 1
+fi
+. ${CNF_FILE}
+case "${TARGET_PRODUCT}" in
+    nrf51*)
+	cross=nrf51
+	;;
+    nrf52*)
+	cross=nrf52
+	;;
+    *)
+	echo 1>&2 Board has non-cross target: ${bn}
+	exit 2
+	;;
+esac
+exec meson ${bn} -Dboard=${bn} --cross=cross-${cross}.txt "${@}"

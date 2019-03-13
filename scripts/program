@@ -1,0 +1,39 @@
+#!/bin/sh
+# SPDX-License-Identifier: CC-BY-SA-4.0
+# Copyright 2018-2019 Peter A. Bigot
+#
+# Script to program a board with a precompiled image.
+#
+# Because meson run targets can't take external arguments, pass the
+# name of the image to program via the environment variable `ELF`.
+# This name should be relative to the top of the build directory, and
+# include the `.elf` suffix.
+
+set -e
+
+if [ -z "${ELF}" ] ; then
+    echo 1>&2 "$0: ELF variable not defined or empty"
+    exit 1;
+fi
+INPATH=${2}/${ELF}
+if [ ! -f "${INPATH}" ] ; then
+    INPATH=${INPATH}.elf
+fi
+if [ ! -f "${INPATH}" ] ; then
+    echo 1>&2 "$0: ${INPATH} not found"
+    exit 1
+fi
+
+TMPFILE=$(mktemp)
+cleanup () {
+    rm -f ${TMPFILE}
+}
+trap cleanup EXIT
+
+JSN=${JSN:-$(nrfjprog -i | sort | sed 1q)}
+SERIES=$(echo ${1} | cut -c 1-5)
+
+set -x
+arm-none-eabi-objcopy -O ihex ${INPATH} ${TMPFILE}
+nrfjprog -s ${JSN} -f ${SERIES} --program ${TMPFILE} --sectorerase
+nrfjprog -s ${JSN} -f ${SERIES} --reset
