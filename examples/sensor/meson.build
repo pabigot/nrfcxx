@@ -10,6 +10,7 @@ ex_sensor_bases = [
   'ntcThermistor',
   'sdp8xx',
   'sht21',
+  'sht31',
   'vdd',
 ]
 if board == 'thingy52'

@@ -9,6 +9,7 @@ sensor_src = files('adc.cc',
                    'lps22hb.cc',
                    'sdp8xx.cc',
                    'sht21.cc',
+                   'sht31.cc',
                    'utils.cc')
 
 sensor_bme280_lib = static_library('sensor_bme280', 'bme280.cc',
