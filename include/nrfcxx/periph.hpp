@@ -1714,6 +1714,18 @@ public:
     return rv;
   }
 
+  /** Send the general call RESET command.
+   *
+   * For devices that support it (such as the Sensirion SHT31) this
+   * provides a software mechanism to reset the device.
+   *
+   * @return as with write(). */
+  ssize_type general_call_reset ()
+  {
+    uint8_t cmd = 6;
+    return write(0, &cmd, sizeof(cmd));
+  }
+
   /** Reference the abstraction instance for a specific
    * peripheral instance.
    *
