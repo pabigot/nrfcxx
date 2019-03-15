@@ -91,9 +91,9 @@ public:
   /** Storage for cached results. */
   struct observations_type
   {
-    /** A recently calculated valid temperature_cK() or
-     * #INVALID_OBSERVATION */
-    int16_t temperature_cK = INVALID_OBSERVATION;
+    /** A recently calculated valid temperature_cK() converted to
+     * centiCelsius, or #INVALID_OBSERVATION */
+    int16_t temperature_cCel = INVALID_OBSERVATION;
 
     /** A recently calculated valid humidity_pptt() or
      * #INVALID_OBSERVATION */

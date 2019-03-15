@@ -32,7 +32,6 @@ main (void)
   error_led.enable();
   sampling_led.enable();
 
-  using sensor::temperature_cK_cCel;
   using clock::uptime;
   using periph::TWI;
 
@@ -100,7 +99,7 @@ main (void)
   printf("%s: %5u cK %+5d cCel (%u us) ; %4u [pptt_RH] (%u us)\n",
          uptime::as_text(as_text, uptime::now()),
          t_cK,
-         temperature_cK_cCel(t_cK),
+         sensor::temperature_cK_cCel(t_cK),
          (unsigned int) uptime::to_us(t_utt),
          rh_pptt, (unsigned int) uptime::to_us(rh_utt));
 
@@ -132,14 +131,11 @@ main (void)
       using lpm::state_machine;
       if (auto pf = sht21.lpsm_process()) {
         if (state_machine::PF_OBSERVATION & pf) {
+          auto& obs = sht21.observations();
           sampling_led.off();
-          auto t_cK = sht21.observations().temperature_cK;
-          auto rh_pptt = sht21.observations().humidity_pptt;
-          printf("%s: %5u cK %+5d cCel ; %4u [pptt_RH]\n",
+          printf("%s: %+5d cCel ; %4u [pptt_RH]\n",
                  uptime::as_text(as_text, uptime::now()),
-                 t_cK,
-                 temperature_cK_cCel(t_cK),
-                 rh_pptt);
+                 obs.temperature_cCel, obs.humidity_pptt);
         }
       }
     }

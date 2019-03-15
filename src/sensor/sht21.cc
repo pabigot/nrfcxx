@@ -2,6 +2,7 @@
 // Copyright 2015-2019 Peter A. Bigot
 
 #include <nrfcxx/sensor/sht21.hpp>
+#include <nrfcxx/sensor/utils.hpp>
 
 namespace nrfcxx {
 namespace sensor {
@@ -284,7 +285,7 @@ sht21::lpsm_process_ (int& delay,
       if (0 > rc) {
         break;
       }
-      observations_.temperature_cK = rc;
+      observations_.temperature_cCel = sensor::temperature_cK_cCel(rc);
       [[fallthrough]]
     case MS_SAMPLE_HUMIDITY:
       rc = trigger_humidity();
