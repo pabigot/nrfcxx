@@ -19,6 +19,20 @@ namespace nrfcxx {
 /** Abstractions of nRF51 peripherals */
 namespace periph {
 
+namespace {
+/** @cond DOXYGEN_EXCLUDE */
+static constexpr uint32_t gpiote_config_from_psel (unsigned int psel)
+{
+  return 0
+#if (NRF52840 - 0)
+    | (GPIOTE_CONFIG_PORT_Msk & (psel << GPIOTE_CONFIG_PSEL_Pos))
+#endif /* NRF52840 */
+    | (GPIOTE_CONFIG_PSEL_Msk & (psel << GPIOTE_CONFIG_PSEL_Pos))
+    ;
+}
+/** @endcond */
+} // ns anonymous
+
 #ifndef NRFCXX_PERIPH_UART0_RXB_SIZE
 /** The length of the software FIFO holding UART::UART0
  * received data */
@@ -970,7 +984,8 @@ public:
    * arguments while events are enabled, if there is a need to change
    * the source of the event.
    *
-   * @param psel the GPIO pin on which edge events will be detected.
+   * @param psel the GPIO global pin index on which edge events will
+   * be detected.
    *
    * @param polarity optional configuration for the type of edge
    * event.  By default both rising and falling edges are detected.
@@ -979,7 +994,7 @@ public:
                      unsigned int polarity = GPIOTE_CONFIG_POLARITY_Toggle)
   {
     nrf5::GPIOTE->CONFIG[channel] = (GPIOTE_CONFIG_MODE_Event << GPIOTE_CONFIG_MODE_Pos)
-      | (GPIOTE_CONFIG_PSEL_Msk & (psel << GPIOTE_CONFIG_PSEL_Pos))
+      | gpiote_config_from_psel(psel)
       | (GPIOTE_CONFIG_POLARITY_Msk & (polarity << GPIOTE_CONFIG_POLARITY_Pos));
   }
 
@@ -990,7 +1005,7 @@ public:
    * @link enable_event event handling@endlink nor does it provide a
    * mechanism to trigger events.
    *
-   * @param psel the GPIO pin that will change state.
+   * @param psel the GPIO global pin index that will change state.
    *
    * @param polarity the state change to be executed when an event is
    * detected.
@@ -999,7 +1014,7 @@ public:
                     unsigned int polarity = GPIOTE_CONFIG_POLARITY_Toggle)
   {
     nrf5::GPIOTE->CONFIG[channel] = (GPIOTE_CONFIG_MODE_Task << GPIOTE_CONFIG_MODE_Pos)
-      | (GPIOTE_CONFIG_PSEL_Msk & (psel << GPIOTE_CONFIG_PSEL_Pos))
+      | gpiote_config_from_psel(psel)
       | (GPIOTE_CONFIG_POLARITY_Msk & (polarity << GPIOTE_CONFIG_POLARITY_Pos));
   }
 
