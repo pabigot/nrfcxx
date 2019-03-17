@@ -892,8 +892,7 @@ public:
      * @p callback and @p arg are preserved regardless of whether the
      * listener is @link enable enabled@endlink. */
     sense_listener (sense_callback_bi callback_bi) :
-      callback_bi{callback_bi},
-      next_{}
+      callback_bi{callback_bi}
     { }
 
     /** Destruct a sense listener.

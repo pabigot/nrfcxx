@@ -216,14 +216,18 @@ void
 GPIOTE::sense_listener::enable ()
 {
   mutex_type mutex;
-  sense_chain_.link_back(*this);
+  if (sense_chain_.is_unlinked(*this)) {
+    sense_chain_.link_back(*this);
+  }
 }
 
 void
 GPIOTE::sense_listener::disable ()
 {
   mutex_type mutex;
-  sense_chain_.unlink(*this);
+  if (!sense_chain_.is_unlinked(*this)) {
+    sense_chain_.unlink(*this);
+  }
 }
 
 void
