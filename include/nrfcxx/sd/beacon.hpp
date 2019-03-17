@@ -118,46 +118,51 @@ public:
     /** Indicates the beacon is not scheduled to transmit, but may be
      * activated in the future.
      *
-     * Transitions to SCHEDULED_PREPARE or SCHEDULED on activate(). */
+     * Transitions to @ref SCHEDULED_PREPARE or @ref SCHEDULED on
+     * activate(). */
     INACTIVE,
 
     /** Indicates a beacon that was deactivated while it was active.
      *
-     * Transitions to INACTIVE when the transmission completes. */
+     * Transitions to @ref INACTIVE when the transmission completes. */
     CANCELLED,
 
     /** Indicates that the beacon is scheduled for a pre-transmission
      * notification.
      *
-     * Transitions to INACTIVE on deactivate(), and to SCHEDULED when
-     * the alarm fires.
+     * Transitions to @ref INACTIVE on deactivate(), and to @ref
+     * SCHEDULED when the alarm fires.
      *
-     * @note Transition from SCHEDULED_PREPARE to SCHEDULED will occur
-     * asynchronously. */
+     * @note Transition from @ref SCHEDULED_PREPARE to @ref SCHEDULED
+     * will occur asynchronously. */
     SCHEDULED_PREPARE,
 
     /** Indicates the beacon is scheduled for a future transmission.
      *
-     * Transitions to INACTIVE on deactivate(), and to READY when the
-     * alarm fires.
+     * Transitions to @ref INACTIVE on deactivate(), and to @ref READY
+     * when the alarm fires.
      *
-     * @note Transition from SCHEDULED to READY will occur
+     * @note Transition from @ref SCHEDULED to @ref READY will occur
      * asynchronously. */
     SCHEDULED,
 
     /** Indicates the beacon should transmit as soon as the radio is
      * available.
      *
-     * Transitions to ACTIVE or FAILED when the radio becomes
-     * available and all earlier READY beacons complete, and to
-     * INACTIVE if cancelled before transmission starts. */
+     * Transitions to @ref ACTIVE or @ref FAILED when the radio
+     * becomes available and all earlier @ref READY beacons complete,
+     * and to @ref INACTIVE if cancelled before transmission
+     * starts. */
     READY,
 
     /** Indicates the beacon is actively transmitting.
      *
-     * Transitions to INACTIVE, SCHEDULED_PREPARE, or SCHEDULED when
-     * the transmission completes, and to CANCELLED on
-     * deactivate(). */
+     * At most one beacon is in this state at any time; that beacon
+     * can be obtained through active().
+     *
+     * Transitions to @ref INACTIVE, @ref SCHEDULED_PREPARE, or @ref
+     * SCHEDULED when the transmission completes, and to @ref
+     * CANCELLED on deactivate(). */
     ACTIVE,
   };
 
@@ -475,6 +480,7 @@ public:
     return update_crc_(reinterpret_cast<uint8_t*>(bp), sizeof (*bp));
   }
 
+  /** Get a pointer to the current @ref ACTIVE beacon. */
   static const Beacon* active ()
   {
     return active_;

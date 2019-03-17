@@ -14,17 +14,3 @@ foreach base : [
              implicit_include_directories: false,
              name_suffix: 'elf')
 endforeach
-
-if false
-  executable('periph', 'periph.cc',
-             link_args: [
-               ''.join([
-                        '-Wl,-T,',
-                        meson.current_source_dir(),
-                        '/periph-' + device + '_XX' + variant + '.mld']),
-               ldargs_for_exe,
-             ],
-             dependencies: nrfcxx_dep,
-             implicit_include_directories: false,
-             name_suffix: 'elf')
-endif

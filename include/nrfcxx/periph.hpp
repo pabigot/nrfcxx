@@ -8,9 +8,11 @@
 #define NRFCXX_PERIPH_HPP
 #pragma once
 
-#include <nrfcxx/impl.hpp>
-#include <pabigot/container.hpp>
 #include <functional>
+
+#include <pabigot/container.hpp>
+
+#include <nrfcxx/impl.hpp>
 
 namespace nrfcxx {
 
@@ -721,7 +723,7 @@ public:
    *       // apparently psel isn't configured for sense detection
    *     }
    *
-   * @param ssp pointer to a sequence of records indicating the status
+   * @param sp pointer to a sequence of records indicating the status
    * of all GPIO pins for which sense detection is enabled.  The pins
    * will be in increasing order of psel; the sequence terminates with
    * a negative psel.  See sense_status_type::counter_state for the
@@ -1135,8 +1137,8 @@ public:
    *
    * This module requires that the `GPIOTE_IRQHandler` process events
    * to fulfill its obligations.  To reduce code space this handler is
-   * not normally installed.  Applications that require @link
-   * gpiote@endlink must install it:
+   * not normally installed.  Applications that require @ref GPIOTE
+   * must install it:
    *
    *     extern "C" {
    *       void GPIOTE_IRQHandler (void) { nrfcxx::periph::GPIOTE::irq_handler(); }
@@ -1966,8 +1968,8 @@ class ADCClient;
  * series-specific IRQ handler@endlink process events to fulfill its
  * obligations.  To reduce code space @link irq_handler this
  * handler@endlink is not normally installed.  Applications that
- * require @link ADC@endlink must install it by providing this
- * definition in an application implementation source file:
+ * require @ref ADC must install it by providing this definition in an
+ * application implementation source file:
  *
  *     extern "C" {
  *       void ADCSeriesVariant_IRQHandler (void) {
@@ -2373,7 +2375,8 @@ protected:
    * @note For SAADC clients this should ensure that
    * SAADC->CH[0].CONFIG is set up with the desired acquisition time.
    *
-   * @return as with configure() */
+   * @return zero on success, or a negative error code.  Non-zero
+   * values are returned through sample() or calibrate(). */
   virtual int configure_bi_ ()
   {
     return 0;

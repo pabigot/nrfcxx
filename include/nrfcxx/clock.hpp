@@ -588,8 +588,9 @@ public:
    *
    * @param interval an interval that is added to the previous
    * deadline() prior to invoking @p callback, to simplify
-   * rescheduling repeating alarms.  The effect of #no_callback is to
-   * reschedule the alarm if and only if interval() is not zero.
+   * rescheduling repeating alarms.  The effect of a callback that
+   * converts to `false` is to reschedule the alarm if and only if
+   * interval() is not zero.
    *
    * @param md optional pointer stored as #metadata. */
   alarm (callback_type callback,

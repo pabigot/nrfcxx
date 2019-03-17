@@ -234,7 +234,7 @@ GPIOTE::enable_sense ()
   // @todo run through listeners to initialize them
 }
 
-GPIOTE *
+GPIOTE*
 GPIOTE::allocate ()
 {
   mutex_type mutex;

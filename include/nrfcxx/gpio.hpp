@@ -568,12 +568,12 @@ private:
 /** Wrapper supporting GPIO control of output signals by explicit or
  * scoped assertion.
  *
- * This references an externally defined @ref generic_pin.
+ * This references an externally defined @ref generic_pin that must
+ * remain valid for the lifespan of the signal wrapper.
  *
- * @tparam ACTIVE_HIGH if `true` the pin asserts with a logic level
- * high, and deasserts with a logic level low.  If `false` (default)
- * the pin asserts with a logic level low, and deasserts with a logic
- * level high. */
+ * @tparam ACTIVE_HIGH if `true` the pin asserts with high voltage,
+ * and deasserts with a low voltage.  If `false` (default) the pin
+ * asserts with a low voltage, and deasserts with a high voltage. */
 template <bool ACTIVE_HIGH = false>
 class active_signal
 {
@@ -611,11 +611,7 @@ public:
     return scoped_assert{*this};
   }
 
-  /** Construct the helper for an active-low signal.
-   *
-   * @warning An attempt to create an instance for a psel that does
-   * not exist on the device will produce
-   * FailSsafeCode::NO_SUCH_PERIPHERAL.
+  /** Construct the wrapper for the active signal on a given pin.
    *
    * @param psel the GPIO PSEL index for the signal. */
   active_signal (generic_pin& pin) :

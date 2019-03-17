@@ -35,11 +35,10 @@ namespace {
 nrfcxx::event_set events;
 } // anonymous namespace
 
-
 extern "C" {
 void ADCSeriesVariant_IRQHandler (void)
 {
-nrfcxx::periph::ADC::irq_handler();
+  nrfcxx::periph::ADC::irq_handler();
 }
 } // extern "C"
 

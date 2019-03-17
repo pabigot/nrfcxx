@@ -58,7 +58,7 @@ temp_changed (int16_t ta,
 } // anonymous
 
 notifier_type Beacon::notify_;
-Beacon * Beacon::active_;
+Beacon* Beacon::active_;
 Beacon::queue_type Beacon::readyq_;
 
 #if (NRFCXX_SOFTDEVICE_IS_S130 - 0)
@@ -224,7 +224,7 @@ Beacon::process_event ()
   return active_ ? 1 : 0;
 }
 
-Beacon *
+Beacon*
 Beacon::reschedule_ ()
 {
   if (CANCELLED == state_) {
@@ -373,7 +373,7 @@ Beacon::process_completion ()
 bool
 Beacon::alarm_callback (clock::alarm& alarm)
 {
-  auto bp = static_cast<Beacon *>(alarm.metadata);
+  auto bp = static_cast<Beacon*>(alarm.metadata);
   auto state = bp->state_;
   if (SCHEDULED_PREPARE == state) {
     bp->prepare_notify_();
