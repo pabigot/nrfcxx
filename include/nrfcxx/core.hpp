@@ -551,6 +551,11 @@ public:
     events_{events}
   { }
 
+  event_set (const event_set&) = delete;
+  event_set& operator= (const event_set&) = delete;
+  event_set (event_set&&) = delete;
+  event_set& operator= (event_set&&) = delete;
+
   /** Implicit cast to bool, true if there are events pending. */
   operator bool() const
   {
