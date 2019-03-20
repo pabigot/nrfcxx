@@ -181,6 +181,7 @@ Broadcaster::start ()
     if (NRF_SUCCESS != err) {
       break;
     }
+    systemState::softdevice_is_enabled(true);
 
     /* Set low power sleep. */
     err = sd_power_mode_set(NRF_POWER_MODE_LOWPWR);
@@ -257,6 +258,7 @@ Broadcaster::stop ()
   sd_radio_notification_cfg_set(NRF_RADIO_NOTIFICATION_TYPE_NONE,
                                 NRF_RADIO_NOTIFICATION_DISTANCE_800US);
   sd_softdevice_disable();
+  systemState::softdevice_is_enabled(false);
 }
 
 event_set_copy

@@ -83,6 +83,7 @@ main (void)
     cprintf("sd_enable unexpected %x\n", err);
     return -2;
   }
+  systemState::softdevice_is_enabled(true);
 
   cprintf("Proposed RAM start %lx\n", ram_start);
   {

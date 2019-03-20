@@ -88,6 +88,7 @@ main (void)
     cprintf("sd_enable unexpected %x\n", err);
     return -2;
   }
+  systemState::softdevice_is_enabled(true);
 
   {
     ble_cfg_t cfg{};
