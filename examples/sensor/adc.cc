@@ -18,6 +18,7 @@
 #include <nrfcxx/gpio.hpp>
 #include <nrfcxx/led.hpp>
 #include <nrfcxx/periph.hpp>
+#include <nrfcxx/misc/regulator.hpp>
 #include <nrfcxx/sensor/adc.hpp>
 
 namespace {
@@ -33,12 +34,11 @@ class Client : public nrfcxx::sensor::adc::voltage_divider
 public:
   Client (unsigned int r1_Ohm,
           unsigned int r2_Ohm,
-          uint8_t ain) :
-    super{r1_Ohm, r2_Ohm, ain},
-    enable{nrfcxx::gpio::pin_reference::create(32 + 3)}
+          uint8_t ain,
+          nrfcxx::misc::controlled_voltage* regulator = nullptr) :
+    super{r1_Ohm, r2_Ohm, ain}
   {
-    enable.configure(nrfcxx::gpio::PIN_CNF_WRONLY);
-    enable.clear();
+    set_regulator(regulator);
   }
 
   uint8_t intensity () const;
@@ -58,19 +58,14 @@ private:
      * So supply power to the transistor for at least 800 us before
      * the output voltage stabilizes with a 10 kOhm lower resistor and
      * dark conditions; it's much faster in bright light. */
-    enable.set();
-    return nrfcxx::clock::uptime::from_ms(1);
+    int rc = super::sample_setup();
+    auto rv = nrfcxx::clock::uptime::from_ms(1);
+    if (rv < rc) {
+      rv = rc;
+    }
+    return rv;
   }
-
-  void sample_teardown () override
-  {
-    enable.clear();
-    //puts("SENSOR_TEARDOWN");
-  }
-
-  nrfcxx::gpio::pin_reference enable;
 };
-
 
 uint8_t
 Client::intensity () const
@@ -132,13 +127,17 @@ main (void)
 
   auto alarm = clock::alarm::for_event<EVT_ALARM, true>(events);
 
+  auto vdd_gp = gpio::gpio_pin{32 + 3};
+  auto vdd = misc::gpio_controlled_voltage{gpio::active_signal<false>{vdd_gp}};
+  printf("vdd %d on %u\n", vdd.enabled(), vdd_gp.implementation().global_psel);
+
   using namespace std::literals;
   alarm
     .set_interval(1s)
     .set_deadline(alarm.interval())
     .schedule();
 
-  Client client{0, 10000, 1};
+  Client client{0, 10000, 1, &vdd};
 
   sensor::adc::lpsm_wrapper lpmclient{events.make_setter(EVT_PROCESS), client};
   int rc = lpmclient.lpsm_start();
