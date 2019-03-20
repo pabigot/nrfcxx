@@ -13,7 +13,10 @@ foreach base : [
              ldargs_for_exe,
              '-Wl,-Map,' + join_paths(meson.current_build_dir(), base + '.map'),
            ],
-           dependencies: [nrfcxx_dep, softdevice_dep],
+           dependencies: [
+             softdevice_dep,    # first to override weak defn in nrfcxx
+             nrfcxx_dep,
+           ],
            implicit_include_directories: false,
            name_suffix: 'elf')
 endforeach

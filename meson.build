@@ -186,6 +186,7 @@ if meson.is_cross_build()
     softdevice_dep = disabler()
   else
     softdevice_dep = declare_dependency(include_directories: softdevice_inc,
+                                        link_args: nrfsd_link_args,
                                         link_with: nrfsd_lib)
   endif
 

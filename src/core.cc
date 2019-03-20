@@ -8,6 +8,7 @@
 #include <nrfcxx/gpio.hpp>
 #include <nrfcxx/impl.hpp>
 #include <nrfcxx/newlib/system.h>
+#include <nrfcxx/periph.hpp>
 
 extern "C" {
 extern char __stext;          ///< symbol at start of application text
@@ -642,6 +643,13 @@ systemState::softdevice_is_enabled (int on)
     }
   }
   return FL_SD_ENABLED & flags_;
+}
+
+__attribute__((__weak__))
+int
+systemState::die_temperature_ ()
+{
+  return periph::TEMP::temperature();
 }
 
 namespace board {

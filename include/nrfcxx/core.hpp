@@ -1564,6 +1564,22 @@ public:
     return wfe_count_;
   }
 
+  /** Read the nRF5 die temperature.
+   *
+   * This is not particularly useful for environment monitoring but can
+   * assist in determining that the ADC needs to be recalibrated due to
+   * temperature variation.
+   *
+   * This function will use periph::TEMP::temperature() unless a @link
+   * softdevice_is_enabled softdevice is enabled@endlink, in which
+   * case it will use the SoC library `sd_temp_get()`.
+   *
+   * @return Die temperature in centi-Celsius. */
+  static int die_cCel ()
+  {
+    return 25 * die_temperature_();
+  }
+
   /** @cond DOXYGEN_EXCLUDE */
   /** Implementation for `WDT_IRQHandler`.
    *
@@ -1637,6 +1653,12 @@ protected:
   static app_handler_type app_handler_;
 
 private:
+  /* Core provides weak definition that delegates to TEMP; sd provides
+   * definition that selects between SoC library and TEMP.
+   *
+   * Value returned is temperature in quarter-Celsius. */
+  static int die_temperature_ ();
+
   state_type& state_;
   const uint32_t magic_;
   static unsigned int flags_;
