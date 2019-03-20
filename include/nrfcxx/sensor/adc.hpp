@@ -14,6 +14,7 @@
 
 #include <nrfcxx/periph.hpp>
 #include <nrfcxx/lpm.hpp>
+#include <nrfcxx/misc/regulator.hpp>
 #include <nrfcxx/sensor/utils.hpp>
 
 namespace nrfcxx {
@@ -88,11 +89,20 @@ private:
  * * If both the upper and lower resistor are nonzero, the class
  *   provides a measurement of the divider's input voltage.  This
  *   would be used, for example, to measure the voltage of an external
- *   power source such as a LiPo battery.
+ *   power source such as a LiPo battery.  This configuration uses the
+ *   ADC internal reference voltage.
  * * If one of the resistors is zero, the class provides a measurement
  *   of the resistance at the missing leg.  This would be used, for
  *   example, when a thermistor or photo transistor is placed in the
- *   divider.
+ *   divider.  This configuration measures voltages relative to Vdd.
+ *
+ * For resistance measurement it is important that the divider input
+ * be Vdd.  Note that there is voltage drop of up to 40% of Vdd when
+ * powering the divider from a GPIO.  Consequently in most
+ * applications you will want to either wire the voltage divider input
+ * to Vdd directly, or for periodic sampling in low power devices
+ * @link set_regulator associate a voltage regulator@endlink with the
+ * divider class.
  */
 class voltage_divider : public nrfcxx::periph::ADCClient
 {
@@ -332,20 +342,79 @@ public:
   int sample_Ohm (size_t ci = 0,
                   bool filter_high_negative = false) const;
 
+  /** Associate a voltage regulator with the divider.
+   *
+   * If a non-null regulator is associated with the divider then
+   * sample_setup() will ensure the regulator is @link
+   * misc::controlled_voltage::request requested@endlink before
+   * sampling starts, and sample_teardown() will ensure that it is
+   * @link misc::controlled_voltage::release released@endlink
+   * after sampling completes.
+   *
+   * @param regulator a pointer to a regulator, or a null pointer to
+   * dissociate the divider from a regulator.  A referenced object
+   * must remain dereferenceable as long as the association is
+   * maintained.
+   *
+   * @param delay_utt additional delay associated with the use of the
+   * regulator for this instance.  This value is added to the @link
+   * misc::controlled_voltage::delay_utt regulator delay@endlink based
+   * on the requirements of the analog network sampled through this
+   * client.  The value can be changed independently through
+   * regulator_delay(). */
+  void set_regulator (misc::controlled_voltage* regulator,
+                      unsigned int delay_utt = 0)
+  {
+    regulator_ = regulator;
+    regdelay_utt_ = delay_utt;
+  }
+
+  /** Query or control the additional delay for an associated
+   * regulator.
+   *
+   * @param delay_utt a non-negative value to update the delay as with
+   * set_regulator(), a negative value to return the current delay
+   * without changing it.
+   *
+   * @return non-negative value indicates the configured delay.  A
+   * negative value is returned if there is no associated
+   * regulator. */
+  int regulator_delay (int delay_utt = -1);
+
+  /** Turn on associated regulator before starting to sample.
+   *
+   * NB: This function may be post-extended if additional setup is
+   * required.  The post-extension should take care to preserve the
+   * largest returned delay.
+   *
+   * @return the larger of the superclass delay and the sum of the
+   * @link misc::controlled_voltage::delay_utt regulator delay@endlink
+   * and the additional delay provided for use of the regulator in
+   * this class. */
+  int sample_setup () override;
+
+  /** Turn off associated regulator after completing sample. */
+  void sample_teardown () override
+  {
+    if (regulator_) {
+      regulator_->release();
+    }
+    super::sample_teardown();
+  }
+
 private:
 
   /** Storage to pack up to eight 4-bit input channel specifiers. */
   uint32_t channel_ains_ = 0;
 
-  /** The number of input channels to be collected for each sample. */
-  uint8_t channel_count_ = 0;
-
-  /** For nRF51 this maintains the index of the channel that is
-   * currently being collected. */
-  uint8_t channel_idx_ = 0;
-
   /** The base ADC configuration for the desired measurement. */
   uint32_t config_ = 0;
+
+  /** An optional regulator. */
+  misc::controlled_voltage* regulator_ = nullptr;
+
+  /** Addition to regulator delay. */
+  unsigned int regdelay_utt_ = 0;
 
   /** Storage for the ADC raw values, or pointer to external raw values.
    *
@@ -357,6 +426,13 @@ private:
     volatile uint16_t* ptr;
     uint16_t volatile val[MAX_INTERNAL];
   } raw_ = {nullptr};
+
+  /** The number of input channels to be collected for each sample. */
+  uint8_t channel_count_ = 0;
+
+  /** For nRF51 this maintains the index of the channel that is
+   * currently being collected. */
+  uint8_t channel_idx_ = 0;
 
   int configure_bi_ () override;
   int nrf51_next_bi_ (size_t ci) override;

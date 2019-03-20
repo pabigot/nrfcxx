@@ -11,6 +11,19 @@ namespace sensor {
 namespace adc {
 
 int
+voltage_divider::regulator_delay (int delay_utt)
+{
+  int rv = -1;
+  if (regulator_) {
+    if (0 <= delay_utt) {
+      regdelay_utt_ = delay_utt;
+    }
+    rv = regdelay_utt_;
+  }
+  return rv;
+}
+
+int
 voltage_divider::sample_mV (size_t ci,
                             bool truncate) const
 {
@@ -53,6 +66,20 @@ voltage_divider::sample_Ohm (size_t ci,
       m16 = 0;
     }
     rv = measurement_Ohm(m16);
+  }
+  return rv;
+}
+
+int
+voltage_divider::sample_setup ()
+{
+  auto rv = super::sample_setup();
+  if ((0 <= rv) && regulator_) {
+    regulator_->request();
+    auto delay = regulator_->delay_utt + regdelay_utt_;
+    if (0 < (delay - rv)) {
+      rv = delay;
+    }
   }
   return rv;
 }
