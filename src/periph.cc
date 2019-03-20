@@ -448,6 +448,25 @@ ADCClient::queue (const notifier_type& notify,
   return 0;
 }
 
+int
+TEMP::temperature ()
+{
+  primask mutex;
+
+  /* NB: PAN 66 (nRF52) / 78 (nRF52840) workaround is required and
+   * should have been supplied by mdk system files. */
+  NRF_TEMP->EVENTS_DATARDY = 0;
+  NRF_TEMP->TASKS_START = 1;
+  while (!NRF_TEMP->EVENTS_DATARDY) {
+  }
+  /* NB: nRF51 PAN 28 (sign extension only through bit 9) not
+   * supported as this was fixed for rev 3 MCUs. */
+  int rv = NRF_TEMP->TEMP;
+  NRF_TEMP->TASKS_STOP = 1;
+  NRF_TEMP->EVENTS_DATARDY = 0;
+  return rv;
+}
+
 } // namespace periph
 
 volatile uint16_t* nrf5::series::ADC_Base::result_ptr_;

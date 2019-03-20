@@ -631,6 +631,32 @@ public:
   }
 };
 
+/** Wrapper around the nRF5 TEMP peripheral. */
+class TEMP
+{
+public:
+  /** Read the nRF5 die temperature.
+   *
+   * This is not particularly useful for environment monitoring but can
+   * assist in determining that the ADC needs to be recalibrated due to
+   * temperature variation.
+   *
+   * @note This function is blocking and will take about 36 us on an
+   * nRF52.  For accuracy it requires that clock::hfclk::hfxt_active()
+   * be `true`, but (a) it provides an answer even without accuracy,
+   * (b) the "accurate" reading is +/- 5 Cel, and (c) sample-to-sample
+   * accuracy is +/- 0.25 Cel (specifications for nRF52840).  So for
+   * detecting changes in excess of 5 Cel it's probably not necessary
+   * to ensure HFXT is running.
+   *
+   * @warning This function uses a resource that is restricted by the
+   * soft device, and should only be invoked when
+   * systemState::softdevice_is_enabled() returns `false`.
+   *
+   * @return Die temperature in quarter-Celsius. */
+  static int temperature ();
+};
+
 /** Class supporting GPIO task and event operations.
  *
  * The nRF51 provides a set of four channels that can detect or emit
