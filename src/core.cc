@@ -114,6 +114,9 @@ void retain_address (const void* ptr)
 #endif
 }
 
+/** Flag in systemState::flags_ tracking soft device status. */
+constexpr auto FL_SD_ENABLED = 0x0001;
+
 } // ns anonymous
 
 namespace nrfcxx {
@@ -180,6 +183,7 @@ application_crc32 (bool exclude_data)
 
 systemState::state_type* systemState::statep_;
 systemState::app_handler_type systemState::app_handler_;
+unsigned int systemState::flags_;
 unsigned int systemState::wfe_count_;
 
 systemState::systemState (state_type& state,
@@ -621,6 +625,23 @@ systemState::wdt_irqhandler (void* sp)
     }
   }
   controlledReset_(0, false);
+}
+
+bool
+systemState::softdevice_is_enabled (int on)
+{
+  /* NB: The linkage of sd_softdevice_is_enabled() prevents providing
+   * a weak definition for use in situations where the soft device API
+   * is not linked into the application.  So we have to track it
+   * ourselves. */
+  if (0 <= on) {
+    if (on) {
+      flags_ |= FL_SD_ENABLED;
+    } else {
+      flags_ &= ~FL_SD_ENABLED;
+    }
+  }
+  return FL_SD_ENABLED & flags_;
 }
 
 namespace board {

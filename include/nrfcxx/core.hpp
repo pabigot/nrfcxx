@@ -900,6 +900,22 @@ public:
     NUM_OPERATIONAL_MODES = (OM_RADIO << 1),
   };
 
+  /** Query or control whether the soft device is expected to be
+   * enabled.
+   *
+   * Applications that enable a soft device should invoke this to tell
+   * the infrastructure.  Operations that use resources that are
+   * restricted by the soft device should use this to determine
+   * whether the SoC Library API or native interaction should be used.
+   *
+   * @param on a positive value to record the softdevice as being
+   * active; zero to record the softdevice as being inactive; a
+   * negative value to return the current state without changing it.
+   *
+   * @return `true` iff the softdevice is recorded as being active
+   * after any changes made by the call. */
+  static bool softdevice_is_enabled (int on = -1);
+
   /** Update the operational mode.
    *
    * @param om_clear bits in the operational mode that are to be
@@ -1623,6 +1639,7 @@ protected:
 private:
   state_type& state_;
   const uint32_t magic_;
+  static unsigned int flags_;
   static unsigned int wfe_count_;
 };
 
