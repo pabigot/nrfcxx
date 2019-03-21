@@ -11,6 +11,164 @@ namespace sensor {
 namespace adc {
 
 int
+calibrator::configure_bi_ ()
+{
+  int rv = 0;
+#if !(NRF51 - 0)
+  auto config = config_ | configure_resolution_bi_();
+  for (auto ci = 0U; ci < nrf5::SAADC.AUX; ++ci) {
+    nrf5::SAADC->CH[ci].PSELN = SAADC_CH_PSELN_PSELN_NC << SAADC_CH_PSELN_PSELN_Pos;
+    if (0 == ci) {
+      nrf5::SAADC->CH[ci].CONFIG = config;
+      nrf5::SAADC->CH[ci].PSELP = SAADC_CH_PSELP_PSELP_VDD << SAADC_CH_PSELP_PSELP_Pos;
+    } else {
+      nrf5::SAADC->CH[ci].PSELP = SAADC_CH_PSELP_PSELP_NC << SAADC_CH_PSELP_PSELP_Pos;
+    }
+  }
+  peripheral::setup_result_bi(&result_, 1);
+#endif
+  return rv;
+}
+
+int
+calibrator::alarm_cb_ (clock::alarm& alarm)
+{
+  auto self = reinterpret_cast<calibrator *>(alarm.metadata);
+  (void)self->lpsm_sample();
+  return true;
+}
+
+calibrator::calibrator (notifier_type notify,
+                        unsigned int interval_s,
+                        uint16_t delta_cCel,
+                        uint32_t config) :
+    super{notify},
+    alarm_{alarm_cb_, this},
+    config_{config},
+    delta_cCel_{delta_cCel}
+{
+#if (NRF51 - 0)
+  /* nRF51 doesn't support calibration so do nothing. */
+  config_ = 0;
+#else
+  if (0 == interval_s) {
+    interval_s = DEFAULT_INTERVAL_s;
+  }
+  if (!config_) {
+    config_ = peripheral::make_config();
+  }
+  alarm_.set_interval(interval_s * clock::uptime::Frequency_Hz);
+#endif
+  if (config_) {
+    latest_cCel_ = systemState::die_cCel();
+    queue_calibration_();
+  }
+}
+
+int
+calibrator::queue_calibration_ ()
+{
+  {
+    mutex_type mutex;
+    calibrated_cCel_ = INVALID_cCel;
+  }
+  return queue([this]()
+               {
+                 complete_calibration_();
+               }, [this](auto rc)
+               {
+                 queue_rc_ = rc;
+                 if (0 > rc) {
+                   calibrated_cCel_ = FAILED_cCel;
+                   machine_.post_event();
+                 }
+               }, true);
+}
+
+void
+calibrator::complete_calibration_ ()
+{
+  calibrated_cCel_ = latest_cCel_;
+  machine_.post_event();
+}
+
+int
+calibrator::recalibrate ()
+{
+  int rc = lpsm_sample();
+  if (0 != rc) {
+    pending_calibrate_ = true;
+  }
+  return rc;
+}
+
+int
+calibrator::lpsm_process_ (int& delay,
+                           process_flags_type& pf)
+{
+  using lpm::state_machine;
+  using clock::uptime;
+
+  int rc = 0;
+
+  switch (machine_.state()) {
+    default:
+      machine_.set_lost();
+      break;
+    ENTRY_IDLE:
+    case MS_ENTRY_IDLE:
+      if (pending_calibrate_) {
+        pending_calibrate_ = false;
+        goto ENTRY_SAMPLE;
+      }
+      machine_.set_state(state_machine::MS_IDLE);
+      [[fallthrough]]
+    case state_machine::MS_IDLE:
+      break;
+    ENTRY_SAMPLE:
+    case state_machine::MS_ENTRY_SAMPLE:
+      latest_cCel_ = systemState::die_cCel();
+      pf |= state_machine::PF_OBSERVATION;
+      if (calibrated()
+          && ((abs(calibrated_cCel_ - latest_cCel_) < delta_cCel_)
+              || (!config_))) {
+        goto ENTRY_IDLE;
+        break;
+      }
+      pf |= PF_CALIBRATING;
+      rc = queue_calibration_();
+      if (0 > rc) {
+        break;
+      }
+      machine_.set_state(state_machine::MS_EXIT_SAMPLE);
+      [[fallthrough]]
+    case state_machine::MS_EXIT_SAMPLE:
+    case state_machine::MS_ENTRY_START:
+      {
+        mutex_type mutex;
+        if (INVALID_cCel == calibrated_cCel_) {
+          /* Calibration is running, event will signal completion */
+          break;
+        }
+        if (FAILED_cCel == calibrated_cCel_) {
+          rc = -EIO;
+        }
+      }
+      if (0 > rc) {
+        break;
+      }
+      pf |= PF_CALIBRATED;
+      if (state_machine::MS_ENTRY_START == machine_.state()) {
+        pf |= state_machine::PF_STARTED | state_machine::PF_OBSERVATION;
+        alarm_.schedule_offset(static_cast<int>(alarm_.interval()));
+      }
+      goto ENTRY_IDLE;
+      break;
+  }
+  return rc;
+}
+
+int
 voltage_divider::regulator_delay (int delay_utt)
 {
   int rv = -1;

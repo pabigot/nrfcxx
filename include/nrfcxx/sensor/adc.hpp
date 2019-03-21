@@ -24,6 +24,197 @@ namespace sensor {
  * operations. */
 namespace adc {
 
+/** A class that implements an @link lpm::lpsm_capable LPM state
+ * machine@endlink that handles periodic ADC calibration
+ * automatically.
+ *
+ * Unlike most LPSM variants this machine initiates a calibration
+ * operation when it is constructed, which will probably be complete
+ * by the time the LPSM is started.  This helps ensure that other LPSM
+ * variants that perform ADC sampling will do so with a calibrated
+ * ADC.
+ *
+ * When started the machine will periodically invoke
+ * systemState::die_cCel() to get the temperature of the processor.
+ * If the temperature has changed more than a configured value from
+ * the temperature at the last configuration a new calibration
+ * operation is queued.
+ *
+ * lpm::lpsm_capable::lpsm_process() for this client returns the
+ * following flags:
+ * * lpm::state_machine::PF_STARTED when the machine is started.
+ *   Other flags are likely to be paired with this, providing the
+ *   status of the initial calibration;
+ * * lpm::state_machine::PF_OBSERVATION when a new temperature is
+ *   available in latest_cCel();
+ * * #PF_CALIBRATING in conjunction with @link
+ *   lpm::state_machine::PF_OBSERVATION PF_OBSERVATION@endlink when
+ *   the temperature difference since last calibration meets criteria
+ *   for recalibration;
+ * * #PF_CALIBRATED when ADC calibration completes.
+ */
+class calibrator : public lpm::lpsm_capable,
+                   private periph::ADCClient
+{
+  using super = lpm::lpsm_capable;
+
+  /* Flag value of calibration_cCel_ indicating that calibration is
+   * incomplete. */
+  static constexpr int16_t INVALID_cCel = INVALID_stdenv;
+
+  /* Flag value of calibration_cCel_ indicating that calibration could
+   * not be initiated.  This should probably become a failsafe
+   * error. */
+  static constexpr int16_t FAILED_cCel = INVALID_stdenv + 1;
+
+  /* Custom state used to transition into idle if there is no pending
+     request. */
+  static constexpr auto MS_ENTRY_IDLE = lpm::state_machine::MS_IDLE + 1;
+
+  using super::lpsm_sample;
+
+public:
+  /** Mutex domain is that of the ADC. */
+  using mutex_type = periph::ADCClient::mutex_type;
+
+  /** Sensor-specific indication from
+   * lpm::lpsm_capable::lpsm_process() that the ADC has initiated
+   * calibration. */
+  static constexpr auto PF_CALIBRATING = lpm::state_machine::PF_APP_BASE << 0;
+
+  /** Sensor-specific indication from
+   * lpm::lpsm_capable::lpsm_process() that the ADC has completed
+   * calibration. */
+  static constexpr auto PF_CALIBRATED = lpm::state_machine::PF_APP_BASE << 1;
+
+  /** The default interval between temperature checks, in seconds. */
+  static constexpr auto DEFAULT_INTERVAL_s = 5U * 60U;
+
+  /** The default. */
+  static constexpr auto DEFAULT_DELTA_cCel = 5U * 100U;
+
+  /** Construct the calibrator instance.
+   *
+   * SAADC relevant features are RESOLUTION, OVERSAMPLE and MODE.
+   * GAIN, REFSEL, and TACQ are not supposed to affect accuracy.
+   * nRF52832 PAN 74 and 178 require TACQ >= 10 us, though this might
+   * not apply to calibration.  A zero value is transformed to the
+   * power-on-reset default configuration.
+   *
+   * Note that RESOLUTION and OVERSAMPLE are to be supplied
+   * post-construction through resolution().  Also note that if
+   * oversampling is used in scan mode acquisitions you do *not* want
+   * to enable oversampling in calibration, which is essentially a
+   * one-shot conversion.
+   *
+   * @param notify as with lpm::state_machine::state_machine.
+   *
+   * @param interval_s the interval between checks of the temperature.
+   * A zero value will be interpreted as DEFAULT_INTERVAL_s.
+   *
+   * @param delta_cCel the minimum difference between current
+   * temperature and last calibrated temperature required to initiate
+   * a calibration, in centi-Celsius.  A zero value will cause a
+   * recalibration each time the current temperature is fetched.
+   *
+   * @param config value for the SAADC channel 0 CONFIG register.  See
+   * above for relevant fields. */
+  calibrator (notifier_type notify,
+              unsigned int interval_s = DEFAULT_INTERVAL_s,
+              uint16_t delta_cCel = DEFAULT_DELTA_cCel,
+              uint32_t config = 0U);
+
+  /* Expose relevant capabilities from private periph::ADCClient base. */
+  using periph::ADCClient::resolution;
+  using periph::ADCClient::oversample;
+  using periph::ADCClient::burst;
+
+  /** Return the `CH[0].CONFIG` setting to be used during calibration. */
+  uint32_t config () const
+  {
+    return config_;
+  }
+
+  /** Request that the ADC be recalibrated as soon as possible.
+   *
+   * @note Invoking this does not affect the normal schedule of
+   * automatic checks for recalibration.
+   *
+   * @return zero if the recalibration is successfully queued, or the
+   * error return from lpsm_sample().  If the machine is not in an
+   * error state the recalibration will be initiated as soon as the
+   * machine returns to its idle state. */
+  int recalibrate ();
+
+  /** Return the number of times the SAADC has been calibrated since
+   * power-up.
+   *
+   * @note This delegates to
+   * nrf5::series::SAADC_Peripheral.calibrate_count() so is not
+   * limited to the number of calibrations initiated by this machine.
+   * It includes any times calibration has been initiated through a
+   * different client or directly. */
+  uint16_t calibrate_count () const
+  {
+    return periph::ADCClient::peripheral::calibrate_count();
+  }
+
+  /** Return `false` iff the device has never been calibrated, or is
+   * being calibrated. */
+  bool calibrated () const
+  {
+    return INVALID_cCel > calibrated_cCel_;
+  }
+
+  /** The most recent systemState::die_cCel() observed by this
+   * machine.
+   *
+   * This may not equal calibrated_cCel() if the difference is below
+   * the recalibration threshold. */
+  int latest_cCel () const
+  {
+    return latest_cCel_;
+  }
+
+  /** The systemState::die_cCel() observed at the time of last
+   * calibration. */
+  int calibrated_cCel () const
+  {
+    mutex_type mutex;
+    return calibrated_cCel_;
+  }
+
+private:
+  int configure_bi_ () override;
+  uint16_t result_;
+
+  int queue_calibration_ ();
+  void complete_calibration_ ();
+
+  static int alarm_cb_ (clock::alarm& alarm);
+
+  int lpsm_process_ (int& delay,
+                     process_flags_type& lpf) override;
+
+  clock::alarm alarm_;
+
+  uint32_t config_;
+
+  int queue_rc_ = 0;
+
+  /* Minimum change necessary to force a recalibration. */
+  uint16_t delta_cCel_;
+
+  /* Should only observe INVALID_cCel when config_ is zero. */
+  int16_t latest_cCel_ = INVALID_cCel;
+
+  /* Observe INVALID_cCel when calibration is pending.
+   * Observe FAILED_cCel when calibration could not be performed. */
+  int16_t calibrated_cCel_ = INVALID_cCel;
+
+  bool pending_calibrate_ = false;
+};
+
 /** ADC instance to measure board Vdd.
  */
 class vdd : public periph::ADCClient

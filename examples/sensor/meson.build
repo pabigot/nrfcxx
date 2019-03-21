@@ -4,6 +4,7 @@
 ex_sensor_bases = [
   'adc',
   'button',
+  'caladc',
   'ccs811',
   'ccs811-fw',
   'contact',
