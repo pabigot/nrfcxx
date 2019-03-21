@@ -23,8 +23,9 @@
 
 namespace {
 
-#define EVT_ALARM 0x01
-#define EVT_PROCESS 0x02
+#define EVT_CALADC 0x01
+#define EVT_ALARM 0x02
+#define EVT_PROCESS 0x04
 nrfcxx::event_set events;
 
 class Client : public nrfcxx::sensor::adc::voltage_divider
@@ -139,8 +140,16 @@ main (void)
 
   Client client{0, 10000, 1, &vdd};
 
+  // Calibrate on any die temperature change, checking at 5 s interval
+  sensor::adc::calibrator caladc{events.make_setter(EVT_CALADC), 5, 1};
+#if !(NRF51 - 0)
+  caladc.resolution(SAADC_RESOLUTION_VAL_14bit);
+#endif
+  int rc = caladc.lpsm_start();
+  printf("ADC calibrator start got %d: %d %d\n", rc, caladc.latest_cCel(), caladc.calibrated_cCel());
+
   sensor::adc::lpsm_wrapper lpmclient{events.make_setter(EVT_PROCESS), client};
-  int rc = lpmclient.lpsm_start();
+  rc = lpmclient.lpsm_start();
   printf("Client start got %d\n", rc);
   events.set(EVT_ALARM);
 
@@ -150,7 +159,21 @@ main (void)
 
     auto pending = events.copy_and_clear();
     if (!pending.empty()) {
+      if (pending.test_and_clear(EVT_CALADC)) {
+        auto& machine = caladc.machine();
+        if (auto pf = caladc.lpsm_process()) {
+          if (caladc.PF_CALIBRATED & pf) {
+            printf("%s ADC calibrated at %d\n", uptime::as_text(buf, uptime::now()),
+                   caladc.calibrated_cCel());
+            lpmclient.lpsm_calibrated(true);
+          }
+        } else if (machine.has_error()) {
+          printf("%s: caladc error %d in %x\n", uptime::as_text(buf, uptime::now()),
+                 caladc.lpsm_process_rc(), machine.state());
+        }
+      }
       if (pending.test_and_clear(EVT_PROCESS)) {
+        auto& machine = lpmclient.machine();
         if (auto pf = lpmclient.lpsm_process()) {
           using lpm::state_machine;
           if (state_machine::PF_STARTED & pf) {
@@ -168,9 +191,9 @@ main (void)
                    client.sample_mV(),
                    r_Ohm, lg, client.intensity());
           }
-        } else if (lpmclient.machine().has_error()) {
+        } else if (machine.has_error()) {
           printf("%s: client error %d in %x\n", uptime::as_text(buf, uptime::now()),
-                 lpmclient.lpsm_process_rc(), lpmclient.machine().state());
+                 lpmclient.lpsm_process_rc(), machine.state());
         }
       }
       if (pending.test_and_clear(EVT_ALARM)) {
