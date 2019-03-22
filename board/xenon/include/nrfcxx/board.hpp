@@ -22,9 +22,9 @@
  *
  * P1  | 0         | 1         | 2        | 3        | 4
  * --: | :-------  | :-------- | :------- | :------- | :--------
- *   0 | SWO       | SCOPE0    | SCOPE1   | SCOPE6   | n/c
+ *   0 | SWO       | SCOPE0    | SCOPE1   | SCOPE5   | n/c
  *   5 | n/c       | n/c       | n/c      | SCOPE2   | BAT_CHGn
- *  10 | SCOPE3    | SCOPE4    | SCOPE5   | SPI1.MOSI| SPI1.MISO
+ *  10 | SCOPE3    | SCOPE4    | LED3     | SPI1.MOSI| SPI1.MISO
  *  15 | SPI1.SCK
  *
  * Feather headers: There is no standard numbering.  Pins begin with
@@ -73,8 +73,10 @@ namespace board {
 #define NRFCXX_BOARD_PSEL_SCOPE2 (32 + 8)
 #define NRFCXX_BOARD_PSEL_SCOPE3 (32 + 10)
 #define NRFCXX_BOARD_PSEL_SCOPE4 (32 + 11)
-#define NRFCXX_BOARD_PSEL_SCOPE5 (32 + 12)
-#define NRFCXX_BOARD_PSEL_SCOPE6 (32 + 3)
+#define NRFCXX_BOARD_PSEL_SCOPE5 (32 + 3)
+
+/* LED3 is active high, directly connected to P1.12 */
+#define NRFCXX_BOARD_PSEL_LED3 (32 + 12)
 
 #define NRFCXX_BOARD_PSEL_UART0_RXD 8
 #define NRFCXX_BOARD_PSEL_UART0_TXD 6

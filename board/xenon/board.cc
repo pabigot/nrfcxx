@@ -14,6 +14,8 @@ namespace board {
 gpio::gpio_pin led0pin{13};
 gpio::gpio_pin led1pin{14};
 gpio::gpio_pin led2pin{15};
+/* LED3 on P1.12 is active-high so cannot be controlled along with the
+ * others, which are all active-low. */
 
 sensor::adc::voltage_divider meas_vbatt{NRFCXX_BOARD_BATTERY_R1,
     NRFCXX_BOARD_BATTERY_R2,
