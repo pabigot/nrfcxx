@@ -1726,6 +1726,22 @@ public:
     return write(0, &cmd, sizeof(cmd));
   }
 
+  /** Probe for a device at the provided address.
+   *
+   * This uses a generic mechanism (a start condition with no command)
+   * to determine whether a device is present on the bus.
+   *
+   * @note A successful probe will be resolved by assessing a bus
+   * timeout, as determined by the `timeout_us` parameter to
+   * bus_configure().  As such this call will generally take
+   * `timeout_us` microseconds to complete.
+   *
+   * @param addr the 7-bit I2C address of the device
+   *
+   * @return zero if it appears that there is a device at the address,
+   * or a negative encoded error. */
+  int check_addr (unsigned int addr) noexcept;
+
   /** Reference the abstraction instance for a specific
    * peripheral instance.
    *

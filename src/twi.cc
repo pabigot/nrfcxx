@@ -210,6 +210,25 @@ TWI::reset_periph_ ()
   return ec;
 }
 
+int
+TWI::check_addr (unsigned int addr)
+{
+  int rc;
+  if (auto enabler = scoped_enable()) {
+    uint8_t src = 0;
+    rc = write(addr, &src, 0);
+    if (0 <= rc) {
+      // Unexpected success, which means a bus problem
+      rc = TWI::error_encoded(TWI::ERR_INVALID);
+    } else if (ERR_TIMEOUT & error_decoded(rc)) {
+      rc = 0;
+    }
+  } else {
+    rc = enabler.result();
+  }
+  return rc;
+}
+
 TWI::ssize_type
 TWI::read (unsigned int addr,
            uint8_t* buf,

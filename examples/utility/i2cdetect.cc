@@ -26,20 +26,15 @@ main (void)
          NRFCXX_BOARD_PSEL_TWI0_SCL, NRFCXX_BOARD_PSEL_TWI0_SDA,
          rc);
   if (0 <= rc) {
-    auto enabler = twi.scoped_enable();
-
     for (uint8_t addr = 4; addr <= 0x77; ++addr) {
-      uint8_t src = 0;
-      rc = twi.write(addr, &src, 0);
-      if (0 > rc) {
-        auto ec = twi.error_decoded(rc);
-        if (twi.ERR_TIMEOUT & ec) {
-          printf("%02x: ok\n", addr);
-        } else if (!(twi.ERR_ANACK & ec)) {
-          printf("%02x: undiagnosed error %x\n", addr, ec);
-        } // else ANACK ~ no device
+      rc = twi.check_addr(addr);
+      if (0 == rc) {
+        printf("%02x: ok\n", addr);
       } else {
-        printf("%02x: unspected success %d\n", addr, rc);
+        auto ec = twi.error_decoded(rc);
+        if (!(twi.ERR_ANACK & ec)) {
+          printf("%02x: undiagnosed error %x\n", addr, ec);
+        }
       }
     }
   }
