@@ -414,7 +414,10 @@ public:
   }
 
   /** Set the GAP ASD Tx Power data type value to use in the beacon. */
-  void dt_tx_power (int8_t v);
+  void dt_tx_power (int8_t v)
+  {
+    dt_tx_power_ = v;
+  }
 
   /** Reset the interval so the beacon is retransmitted as quickly as
    * possible.
