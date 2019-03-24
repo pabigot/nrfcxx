@@ -28,80 +28,6 @@ namespace {
 #define EVT_PROCESS 0x04
 nrfcxx::event_set events;
 
-class Client : public nrfcxx::sensor::adc::voltage_divider
-{
-  using super = nrfcxx::sensor::adc::voltage_divider;
-
-public:
-  Client (unsigned int r1_Ohm,
-          unsigned int r2_Ohm,
-          uint8_t ain,
-          nrfcxx::misc::controlled_voltage* regulator = nullptr) :
-    super{r1_Ohm, r2_Ohm, ain}
-  {
-    set_regulator(regulator);
-  }
-
-  uint8_t intensity () const;
-
-private:
-
-  int sample_setup () override
-  {
-    /* The HW5P-1 datasheet indicates a 2 us reaction time, but that's
-     * at 10 V, 5 mA, a 100 Ohm lower resistor, and unspecified
-     * illuminance.  LogicPro testing digital and analog channels
-     * to determine time to analog stability shows:
-     *
-     * Standard drive: logic high dur 108 us, > 500 us max 800 us
-     * High drive: no visible difference (which seems odd)
-     *
-     * So supply power to the transistor for at least 800 us before
-     * the output voltage stabilizes with a 10 kOhm lower resistor and
-     * dark conditions; it's much faster in bright light. */
-    int rc = super::sample_setup();
-    auto rv = nrfcxx::clock::uptime::from_ms(1);
-    if (rv < rc) {
-      rv = rc;
-    }
-    return rv;
-  }
-};
-
-uint8_t
-Client::intensity () const
-{
-  /* At 10 kOhm reference resistor the maximum measured resistance
-   * would be about 650 MOhm ignoring tolerance.
-   *
-   * The lowest non-zero resistance is about 20 Ohm; 100 Ohm is
-   * maximum brightness.
-   *
-   * The no-light condition is 4 GOhm, but the lowest non-zero
-   * voltage produces about 100 MOhm (maximum darkness).
-   *
-   * We want a log representation of the potential range where low
-   * is dark and high is bright; 8 bits of resolution are
-   * sufficient.  So:
-   *
-   * 255 for values less than 100 Ohm
-   * 0 for values exceeding 100 MOhm.
-   * The range [ln(10^2), (10^9)] maps reversed to [1, 251). */
-  static constexpr auto BRIGHT_Ohm = 100U;
-  static constexpr auto BRIGHT_lg = 4.60517018598809136803;
-  static constexpr auto DARK_Ohm = 100'000'000U;
-  static constexpr auto DARK_lg = 18.42068074395236547214;
-  unsigned int light_Ohm = sample_Ohm(0, true);
-  if (BRIGHT_Ohm >= light_Ohm) {
-    return 255;
-  }
-  if (DARK_Ohm <= light_Ohm) {
-    return 0;
-  }
-  auto light_lg = log(light_Ohm);
-  return 1U + 250U * (DARK_lg - light_lg) / (DARK_lg - BRIGHT_lg);
-}
-
 } // anonymous namespace
 
 extern "C" {
@@ -129,7 +55,7 @@ main (void)
   auto alarm = clock::alarm::for_event<EVT_ALARM, true>(events);
 
   auto vdd_gp = gpio::gpio_pin{32 + 3};
-  auto vdd = misc::gpio_controlled_voltage{gpio::active_signal<false>{vdd_gp}};
+  auto vdd = misc::gpio_controlled_voltage{gpio::active_signal<true>{vdd_gp}};
   printf("vdd %d on %u\n", vdd.enabled(), vdd_gp.implementation().global_psel);
 
   using namespace std::literals;
@@ -138,7 +64,8 @@ main (void)
     .set_deadline(alarm.interval())
     .schedule();
 
-  Client client{0, 10000, 1, &vdd};
+  sensor::adc::light_intensity client{1};
+  client.set_regulator(&vdd, nrfcxx::clock::uptime::from_ms(1));
 
   // Calibrate on any die temperature change, checking at 5 s interval
   sensor::adc::calibrator caladc{events.make_setter(EVT_CALADC), 5, 1};
