@@ -107,7 +107,7 @@ public:
 
   /** Bit set in #state_type when lpsm_capable::lpsm_stop() has been
    * invoked by the application to request a shutdown. */
-  static constexpr state_type STATE_STOP_PENDING = (1U << 26);
+  static constexpr state_type STATE_STOP_PENDING = (1U << 27);
 
   /** State when the machine is off and all resources associated with
    * it are disabled.
