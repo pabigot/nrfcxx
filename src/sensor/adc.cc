@@ -452,18 +452,16 @@ lpsm_wrapper::lpsm_calibrate ()
   return 0;
 }
 
-int
-lpsm_wrapper::lpsm_bypass_calibration ()
+bool
+lpsm_wrapper::lpsm_calibrated (int v)
 {
-  using lpm::state_machine;
-  int rv = -1;
-  if ((state_machine::MS_ENTRY_START == machine_.state())
-      || (state_machine::MS_IDLE == machine_.state())) {
-    mutex_type mutex;
-    flags_bi_ |= FL_CALIBRATED;
-    rv = 0;
+  mutex_type mutex;
+  if (0 < v) {
+    flags_bi_ |= FL_CALIBRATED_FOREVER;
+  } else if (0 == v) {
+    flags_bi_ &= ~FL_CALIBRATED_FOREVER;
   }
-  return rv;
+  return (FL_CALIBRATED_FOREVER & flags_bi_);
 }
 
 int
@@ -510,7 +508,7 @@ lpsm_wrapper::lpsm_process_ (int& delay,
         bool calibrate_first{};
         {
           mutex_type mutex;
-          if (flags_bi_ & FL_CALIBRATED) {
+          if (flags_bi_ & (FL_CALIBRATED_FOREVER | FL_CALIBRATED_ONCE)) {
             flags_bi_ |= FL_PENDING | FL_SAMPLING;
           } else {
             calibrate_first = true;
@@ -527,7 +525,7 @@ lpsm_wrapper::lpsm_process_ (int& delay,
           machine_.set_state(state_machine::MS_EXIT_SAMPLE, true);
         }, [this](auto rc) {
           mutex_type mutex;
-          flags_bi_ &= ~FL_PENDING;
+          flags_bi_ &= ~(FL_PENDING | FL_CALIBRATED_ONCE);
           queue_rc_ = rc;
           if (0 > rc) {
             machine_.set_state(state_machine::MS_EXIT_SAMPLE, true);
@@ -551,12 +549,12 @@ lpsm_wrapper::lpsm_process_ (int& delay,
     lbl_calibrate:
       {
         mutex_type mutex;
-        flags_bi_ &= ~FL_CALIBRATED;
+        flags_bi_ &= ~FL_CALIBRATED_ONCE;
         flags_bi_ |= FL_PENDING | FL_CALIBRATING;
       }
       queue_rc_ = -1;
       rc = client_.queue([this](){
-          flags_bi_ |= FL_CALIBRATED;
+          flags_bi_ |= FL_CALIBRATED_ONCE;
           machine_.set_state(MS_EXIT_CALIBRATE, true);
         }, [this](auto rc) {
           mutex_type mutex;

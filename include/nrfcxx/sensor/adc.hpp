@@ -874,17 +874,35 @@ public:
  *
  * lpm::lpsm_capable::lpsm_process() for this client returns the
  * following flags:
- * * #PF_CALIBRATED when ADC calibration completes, allowing
- *   lpm::lpsm_capable::lpsm_sample() to be successfully invoked;
+ * * #PF_CALIBRATED on completion of a pre-sample ADC calibration
+ *   forced before taking a sample.  See lpsm_calibrated();
  * * lpm::state_machine::PF_OBSERVATION when ADC sampling completes.
  *   Subclasses must provide API to retrieve the measurement(s) when
  *   lpm::state_machine::PF_OBSERVATION is returned.
  *
- * lpsm_calibrate() should be invoked by the application on startup
- * and whenever the ambient temperature changes by more than 10 Cel
- * from the last calibration.  Alternatively, applications may invoke
- * lpsm_bypass_calibration() to indicate that calibration is managed
- * externally. */
+ * In most cases calibration can be handled by an instance of @ref
+ * calibrator using a common calibration configuration, in which case
+ * @link lpsm_calibrated `lpsm_calibrated(true)`@endlink should be
+ * invoked when @ref calibrator::PF_CALIBRATED is returned by that
+ * instance (assuming the corresponding calibration configuration is
+ * appropriate for all periph::ADCClient instances).
+ *
+ * If there is only one ADC client in the system, this wrapper will
+ * automatically calibrate the ADC using the same configuration as the
+ * sample if wrapper instance is not set as calibrated.  For these
+ * applications @link lpsm_calibrated `lpsm_calibrated(true)`@endlink should be
+ * invoked when @ref PF_CALIBRATED is returned by the wrapper.
+ *
+ * Some systems may require recalibration on each sample (e.g. when
+ * doing both differential and single-ended acquisitions, which have
+ * different offsets).  To support those systems the wrapper will
+ * automatically perform a calibration immediately before each sample
+ * as long as @ref lpsm_calibrated is not used to tell it to assume
+ * calibration is complete.
+ *
+ * @note Mixing use of calibration in this class with a shared @ref
+ * calibrator may result in confusion.  Be careful with the state
+ * transitions. */
 class lpsm_wrapper : public lpm::lpsm_capable
 {
   using super_lpsm = lpm::lpsm_capable;
@@ -951,13 +969,17 @@ class lpsm_wrapper : public lpm::lpsm_capable
      * pending. */
     FL_PENDING = 0x08,
 
-    /** Bit set in flags_bi_ to indicate that calibration has been
-     * successfully performed. */
-    FL_CALIBRATED = 0x10,
+    /** Bit set in flags_bi_ to indicate that a one-shot pre-sample
+     * calibration has been successfully performed. */
+    FL_CALIBRATED_ONCE = 0x10,
+
+    /** Bit in flags_bi_ managed by lpsm_calibrated() to indicate that
+     * permanent calibration has been successfully performed. */
+    FL_CALIBRATED_FOREVER = 0x20,
 
     /** Bit set in flags_bi_ to indicate that a sample should be
      * initiated as soon as calibration completes. */
-    FL_THEN_SAMPLE = 0x20,
+    FL_THEN_SAMPLE = 0x40,
   };
 
 public:
@@ -990,14 +1012,30 @@ public:
    * state where calibration is allowed. */
   int lpsm_calibrate ();
 
-  /** Set the internal flag that indicates calibration has been performed.
+  /** Query, set, or clear the internal flag that indicates
+   * calibration has been performed.
    *
-   * Applications may want to do this when calibration is managed
-   * through an external process.
+   * By default the wrapper is unaware of any ADC calibration, and so
+   * will attempt to perform a calibration before each sample.  If
+   * calibration is assumed to remain valid for subsequent samples,
+   * this method may be invoked to prevent the pre-sample calibration
+   * from being repeated.
    *
-   * @return zero on success, or an error if the machine is not in a
-   * state where calibration is allowed. */
-  int lpsm_bypass_calibration ();
+   * Applications may also use this when calibration is managed
+   * through an external process such as an instance of @ref
+   * calibrator, or when both differential and single-ended
+   * acquisitions are performed in the application and the ADC must be
+   * recalibrated between sample types.
+   *
+   * @param v Zero to record that the ADC is not calibrated, forcing a
+   * new calibration on the next sample; positive to mark that the ADC
+   * is already calibrated; negative to query the current calibration
+   * state without changing it.
+   *
+   * @return `true` if the ADC has been calibrated (or marked
+   * calibrated); `false` if the next sample will cause a calibration
+   * to be performed. */
+  bool lpsm_calibrated (int v = -1);
 
 private:
   void lpsm_reset_ () override
