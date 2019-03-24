@@ -393,6 +393,44 @@ ntcThermistor::convert_adc16_cCel (unsigned int therm_adc16)
   return steinhartHart->temperature_cK(therm_Ohm) + ABSOLUTE_ZERO_cCel;
 }
 
+uint8_t
+light_intensity::intensity () const
+{
+  /* At 10 kOhm reference resistor the maximum measured resistance
+   * would be about 650 MOhm ignoring tolerance.
+   *
+   * The lowest non-zero resistance is about 20 Ohm; 100 Ohm is
+   * maximum brightness.
+   *
+   * The no-light condition is 4 GOhm, but the lowest non-zero
+   * voltage produces about 100 MOhm (maximum darkness).
+   *
+   * We want a log representation of the potential range where low
+   * is dark and high is bright; 8 bits of resolution are
+   * sufficient.  So:
+   *
+   * SHORTED_INTENSITY for values less than 100 Ohm
+   * OPEN_INTENSITY for values exceeding 100 MOhm.
+   * The range [ln(10^2), ln(10^9)] maps reversed to [1, 251). */
+  static constexpr auto BRIGHT_Ohm = 100U;
+  static constexpr auto BRIGHT_lg = 4.60517018598809136803;
+  static constexpr auto DARK_Ohm = 100'000'000U;
+  static constexpr auto DARK_lg = 18.42068074395236547214;
+  unsigned int light_Ohm = sample_Ohm(0, true);
+  if (BRIGHT_Ohm > light_Ohm) {
+    return SHORTED_INTENSITY;
+  }
+  if (DARK_Ohm < light_Ohm) {
+    /* @todo Correction of the resistance through
+     * SAADC_Peripheral::near_zero might land us here instead of
+     * SHORTED for very high measured voltages.  That could probably
+     * be avoided by using GAIN_Gain1_6 along with REFSEL_VDD1_4. */
+    return OPEN_INTENSITY;
+  }
+  auto light_lg = log(light_Ohm);
+  return 1U + 250U * (DARK_lg - light_lg) / (DARK_lg - BRIGHT_lg);
+}
+
 int
 vdd::configure_bi_ ()
 {

@@ -862,6 +862,65 @@ public:
   const SteinhartHart* const steinhartHart;
 };
 
+/** Support for a resistance-relative light sensor.
+ *
+ * This may be a [Shenzen Haiwang
+ * HW5P-1](https://www.adafruit.com/product/2831), an [Everlight
+ * ALS-PT243-3C/L177](https://everlighteurope.com/ambient-light-sensors/22/ALSPT2433CL177.html),
+ * or an old-school photo diode.  It is assumed that the device will
+ * be installed as the upper leg of a voltage divider with a 10 kOhm
+ * lower leg, and that resistance varies between about 100 Ohm for
+ * maximum brightness and 100 MOhm for maximum darkness.
+ *
+ * Instances of this class measure the resistance of the sensor and
+ * convert it into a value that ranges from 1 (dark) to 254 (bright)
+ * with the log of the resistance.
+ *
+ * @note This is not a measure of lux, and the absolute brightness
+ * will vary between sensors of the same type.  It is suitable for
+ * detecting relative changes in light exposure of a single sensor.
+ *
+ * @note A phototransistor will take some amount of time after voltage
+ * is supplied before it stabilizes, longer the higher the resistance
+ * (lower the light level).  If using a controlled voltage source
+ * ensure the @link regulator_delay regulator delay@endlink is
+ * sufficient.  Consider using 1 ms as a reasonable safe value. */
+class light_intensity : public nrfcxx::sensor::adc::voltage_divider
+{
+using super = nrfcxx::sensor::adc::voltage_divider;
+
+public:
+  /** Value of intensity() when it appears the sensor is unpopulated
+   * or failed-open.
+   *
+   * @note Due to SAADC error this value may also be returned for a
+   * shorted sensor.  See
+   * nrf5::series::SAADC_Peripheral::near_zero. */
+  static constexpr uint8_t OPEN_INTENSITY = 0U;
+
+  /** Value of intensity() when it appears the sensor is shorted. */
+  static constexpr uint8_t SHORTED_INTENSITY = 255U;
+
+  /** Construct the instance.
+   *
+   * @param ain analog input number connected to the voltage divider.
+   *
+   * @param lower_Ohm resistance of the lower half of the divider. */
+  light_intensity (uint8_t ain,
+                   unsigned int lower_Ohm = 10000) :
+    super{0, lower_Ohm, ain}
+  { }
+
+  /** Calculate the relative intensity of light based on the most
+   * recent sample.
+   *
+   * @return a value that scales linearly from 1 (dark) to 254
+   * (bright) with the log of the intensity of the light delivered to
+   * the sensor.  Extrema values of #OPEN_INTENSITY and
+   * #SHORTED_INTENSITY indicate a failed sensor. */
+  uint8_t intensity () const;
+};
+
 /** A class that implements an @link lpm::lpsm_capable LPM state
  * machine@endlink around a periph::ADCClient.
  *
