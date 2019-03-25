@@ -93,10 +93,8 @@ struct SAADC_Peripheral : public ADC_Base {
    * * `SAADC_CH_CONFIG_TACQ_40us` for 40 us.
    *
    * @param burst one of:
-   * * `true` for burst mode operation **non-standard default** (this
-   *   is default enabled to support non-zero `OVERSAMPLING` with the
-   *   simplified one-shot periph::ADCClient API.)
-   * * `false` for normal operation;
+   * * `false` for normal operation **default**;
+   * * `true` for burst mode operation
    *
    * @param resp one of:
    * * `SAADC_CH_CONFIG_RESP_Bypass` to bypass the resistor ladder **default**;
@@ -119,7 +117,7 @@ struct SAADC_Peripheral : public ADC_Base {
   make_config (unsigned int refsel = SAADC_CH_CONFIG_REFSEL_Internal,
                unsigned int gain = SAADC_CH_CONFIG_GAIN_Gain1_6,
                unsigned int tacq = SAADC_CH_CONFIG_TACQ_10us,
-               bool burst = true,
+               bool burst = false,
                unsigned int resp = SAADC_CH_CONFIG_RESP_Bypass,
                bool differential = false,
                unsigned int resn = SAADC_CH_CONFIG_RESN_Bypass)
