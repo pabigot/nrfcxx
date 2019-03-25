@@ -974,7 +974,10 @@ class lpsm_wrapper : public lpm::lpsm_capable
    *   transitions to CALIBRATE (after a setup delay if necessary).
    *
    * * CALIBRATE queues an ADC calibration and falls into
-   *   EXIT_CALIBRATE.
+   *   QUEUED.
+   *
+   * * QUEUED transitions to either EXIT_SAMPLE or EXIT_CALIBRATE
+   *   depending on the type of queued operation.
    *
    * * EXIT_CALIBRATE loops until calibration resolved, then records
    *   state of calibration and transitions to either IDLE (invoking
@@ -985,7 +988,7 @@ class lpsm_wrapper : public lpm::lpsm_capable
    *   Otherwise it claims the ADC, invokes sample_setup_(), and
    *   transitions to SAMPLE (after a setup delay if necessary).
    *
-   * * SAMPLE queues an ADC collection and transitions to EXIT_SAMPLE.
+   * * SAMPLE queues an ADC collection and transitions to QUEUED.
    *
    * * EXIT_SAMPLE is blocked until the ADC completes, then it invokes
    *   sample_teardown_() and processes the sample, emitting
@@ -1009,6 +1012,7 @@ class lpsm_wrapper : public lpm::lpsm_capable
   static constexpr auto MS_ENTRY_CALIBRATE = lpm::state_machine::MS_ENTRY_SAMPLE + 1;
   static constexpr auto MS_CALIBRATE = lpm::state_machine::MS_SAMPLE + 1;
   static constexpr auto MS_EXIT_CALIBRATE = lpm::state_machine::MS_EXIT_SAMPLE + 1;
+  static constexpr auto MS_QUEUED = lpm::state_machine::MS_SAMPLE + 2;
 
   /** Type for #flags_bi_. */
   using flags_type = uint8_t;

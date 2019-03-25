@@ -559,6 +559,7 @@ lpsm_wrapper::lpsm_process_ (int& delay,
         }
       }
       queue_rc_ = -1;
+      machine_.set_state(MS_QUEUED);
       rc = client_.queue([this](){
           machine_.set_state(state_machine::MS_EXIT_SAMPLE, true);
         }, [this](auto rc) {
@@ -569,6 +570,8 @@ lpsm_wrapper::lpsm_process_ (int& delay,
             machine_.set_state(state_machine::MS_EXIT_SAMPLE, true);
           }
         });
+      [[fallthrough]]
+    case MS_QUEUED:
       break;
     case state_machine::MS_EXIT_SAMPLE:
       {
@@ -591,6 +594,7 @@ lpsm_wrapper::lpsm_process_ (int& delay,
         flags_bi_ |= FL_PENDING | FL_CALIBRATING;
       }
       queue_rc_ = -1;
+      machine_.set_state(MS_QUEUED);
       rc = client_.queue([this](){
           flags_bi_ |= FL_CALIBRATED_ONCE;
           machine_.set_state(MS_EXIT_CALIBRATE, true);
