@@ -25,6 +25,11 @@ if board == 'xenon'
     'vdivider',
   ]
 endif
+if board == 'xenon' or board == 'pca10040'
+  ex_sensor_bases += [
+    'saadc-burst',
+  ]
+endif
 
 foreach base : ex_sensor_bases
   executable(base, base + '.cc',

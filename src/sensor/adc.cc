@@ -116,6 +116,14 @@ voltage_divider::configure_instance_ (int8_t channel_count,
     failsafe(FailSafeCode::API_VIOLATION);
   }
 
+  /* Pre-calculate the series-specific CONFIG register.
+   *
+   * The bits corresponding to resolution should be zeroed so they can
+   * be set correctly based on parameters passed to resolution().
+   *
+   * For nRF51 the bits corresponding to AIN selection should be zero
+   * so the desired input can be set based on the channel
+   * configuration. */
   if ((0 == r1_Ohm) && (0 == r2_Ohm)) {
     failsafe(FailSafeCode::API_VIOLATION);
   } else if ((0 == r1_Ohm) || (0 == r2_Ohm)) {
@@ -124,7 +132,7 @@ voltage_divider::configure_instance_ (int8_t channel_count,
      * supply.  This means scaling the input and the supply. */
 #if (NRF51 - 0)
     config_ = peripheral::make_config(-1,
-                                      ADC_CONFIG_RES_10bit,
+                                      0,
                                       ADC_CONFIG_INPSEL_AnalogInputOneThirdPrescaling,
                                       ADC_CONFIG_REFSEL_SupplyOneThirdPrescaling);
 #else
@@ -136,7 +144,7 @@ voltage_divider::configure_instance_ (int8_t channel_count,
     /* For voltage we use the internal reference voltage. */
 #if (NRF51 - 0)
     config_ = peripheral::make_config(-1,
-                                      ADC_CONFIG_RES_10bit,
+                                      0,
                                       ADC_CONFIG_INPSEL_AnalogInputOneThirdPrescaling,
                                       ADC_CONFIG_REFSEL_VBG);
 #else
@@ -152,22 +160,20 @@ voltage_divider::configure_bi_ ()
 {
   using namespace nrfcxx;
 
+  auto config = configure_resolution_bi_();
 #if (NRF51 - 0)
-  nrf5::ADC->CONFIG = nrf51_next_bi_(0);
+  nrf5::ADC->CONFIG = config | nrf51_next_bi_(0);
 #else
-  nrf5::SAADC->RESOLUTION = SAADC_RESOLUTION_VAL_14bit << SAADC_RESOLUTION_VAL_Pos;
-  nrf5::SAADC->OVERSAMPLE = 4;
-  size_t ci{};
-  while (ci < nrf5::SAADC.AUX) {
+  config |= config_;
+  for (auto ci = 0U; ci < nrf5::SAADC.AUX; ++ci) {
     int ain = channel_ain(ci);
-    nrf5::SAADC->CH[ci].CONFIG = config_;
+    nrf5::SAADC->CH[ci].CONFIG = config;
     if (0 <= ain) {
       nrf5::SAADC->CH[ci].PSELP = (SAADC_CH_PSELP_PSELP_AnalogInput0 + ain) << SAADC_CH_PSELP_PSELP_Pos;
     } else {
       nrf5::SAADC->CH[ci].PSELP = SAADC_CH_PSELP_PSELP_NC << SAADC_CH_PSELP_PSELP_Pos;
     }
     nrf5::SAADC->CH[ci].PSELN = SAADC_CH_PSELN_PSELN_NC << SAADC_CH_PSELN_PSELN_Pos;
-    ++ci;
   }
 #endif
   peripheral::setup_result_bi(raw_adc16_(), channel_count_);
@@ -233,22 +239,19 @@ int
 vdd::configure_bi_ ()
 {
   vdd_adc16_ = 0;
+  auto config = configure_resolution_bi_();
 #if (NRF51 - 0)
-  static constexpr uint32_t config =
-    peripheral::make_config(-1,
-                            ADC_CONFIG_RES_10bit,
-                            ADC_CONFIG_INPSEL_SupplyOneThirdPrescaling,
-                            ADC_CONFIG_REFSEL_VBG);
+  config |= peripheral::make_config(-1,
+                                    0,
+                                    ADC_CONFIG_INPSEL_SupplyOneThirdPrescaling,
+                                    ADC_CONFIG_REFSEL_VBG);
   nrf5::ADC->CONFIG = config;
 #else
-  nrf5::SAADC->RESOLUTION = SAADC_RESOLUTION_VAL_14bit;
-  nrf5::SAADC->OVERSAMPLE = 4;
-  static constexpr unsigned int config =
-    peripheral::make_config(SAADC_CH_CONFIG_REFSEL_Internal,
-                            SAADC_CH_CONFIG_GAIN_Gain1_6);
-  for (unsigned int ci = 0; ci < nrf5::SAADC.AUX; ++ci) {
+  config |= peripheral::make_config(SAADC_CH_CONFIG_REFSEL_Internal,
+                                    SAADC_CH_CONFIG_GAIN_Gain1_6);
+  for (auto ci = 0U; ci < nrf5::SAADC.AUX; ++ci) {
+    nrf5::SAADC->CH[ci].CONFIG = config;
     if (0 == ci) {
-      nrf5::SAADC->CH[ci].CONFIG = config;
       nrf5::SAADC->CH[ci].PSELP = SAADC_CH_PSELP_PSELP_VDD << SAADC_CH_PSELP_PSELP_Pos;
     } else {
       nrf5::SAADC->CH[ci].PSELP = SAADC_CH_PSELP_PSELP_NC << SAADC_CH_PSELP_PSELP_Pos;

@@ -2225,6 +2225,22 @@ protected:
   };
 
 private:
+
+  /* Position and mask values to encode the ADC resolution,
+   * oversampling, and oversampling sample-trigger support options.
+   *
+   * These are all managed through resolution() so the user and
+   * subclasses don't get to see them. */
+  enum SampleResolution_enum : uint32_t
+  {
+    SR_RESOLUTION_Pos = 0U,
+    SR_RESOLUTION_Msk = (0x0007U << SR_RESOLUTION_Pos),
+    SR_OVERSAMPLE_Pos = 3U,
+    SR_OVERSAMPLE_Msk = (0x000FU << SR_OVERSAMPLE_Pos),
+    SR_BURST_Pos = 7U,
+    SR_BURST_Msk = (0x01U << SR_BURST_Pos),
+  };
+
   struct ref_next
   {
     using pointer_type = ADCClient*;
@@ -2240,6 +2256,12 @@ private:
   queue_type::pointer_type next_ = queue_type::unlinked_ptr();
   queued_callback_type queued_callback_{};
   notifier_type notify_callback_{};
+  uint8_t resolution_ = 0
+#if !(NRF51 - 0)
+    | (SAADC_RESOLUTION_VAL_10bit << SR_RESOLUTION_Pos)
+    | (SAADC_OVERSAMPLE_OVERSAMPLE_Bypass << SR_OVERSAMPLE_Pos)
+#endif
+    ;
 
 public:
   using peripheral = ADC::peripheral;
@@ -2412,6 +2434,52 @@ public:
     return queue({}, {}, calibrate);
   }
 
+  /** Set oversampling for collections by this client.
+   *
+   * @note For nRF51/ADC only @p res is preserved; this device does not
+   * support oversampling.
+   *
+   * @warning For nRF52/SAADC you cannot mix one-shot (single channel)
+   * and scan mode (multiple channel) acquisitions with oversampling
+   * enabled for scan mode.  Doing so runs afoul of an unassigned
+   * SAADC anomaly.  If mixing one-shot and scan acquisitions the scan
+   * acquisitions cannot perform oversampling.
+   *
+   * @param res the peripheral-specific setting for sample resolution,
+   * e.g. `SAADC_RESOLUTION_VAL_14bit` for SAADC or
+   * `ADC_CONFIG_RES_10bit` for ADC.
+   *
+   * @param exp the exponent defining the number of samples.  `2^exp`
+   * samples are required to complete sampling for each enabled
+   * channel.  A zero value here overrides @p burst to be `false`.
+   *
+   * @param burst a `true` value indicates that `CH[i].CONFIG` should
+   * set the `BURST` flag when @p exp is not zero, enabling automatic
+   * triggering of the necessary samples to complete the collection.
+   * If `false` the additional required `TASKS_SAMPLE` triggers must
+   * be supplied externally, which will not work with multiple
+   * channels enabled.  Note that the default `true` only applies when
+   * @p exp is non-zero.
+   *
+   * @see https://devzone.nordicsemi.com/f/nordic-q-a/45339/q */
+  void resolution (uint8_t res,
+                   uint8_t exp = 0,
+                   bool burst = true);
+
+  /** Extract the series-specific resolution setting as defaulted or
+   * set through resolution(). */
+  uint32_t resolution () const;
+
+  /** Extract the series-specific oversample setting as defaulted or
+   * set through resolution(). */
+  uint32_t oversample () const;
+
+  /** Extract the series-specific burst support setting as defaulted
+   * or set through resolution().
+   *
+   * `false` is always returned when oversample() is zero. */
+  bool burst () const;
+
 protected:
   friend class ADC;
 
@@ -2428,6 +2496,18 @@ protected:
   {
     return ADC::try_sample_bi_(this, notify);
   }
+
+  /** Set the RESOLUTION and OVERSAMPLE fields based on previous calls
+   * to resolution().
+   *
+   * This also configures SAADC_Peripheral::autoburst_bi_, and returns
+   * additional CONFIG bits, to reflect whether irq_handler() is
+   * responsible for providing additional SAMPLE tasks necessary to
+   * support oversampling.
+   *
+   * @return additional bits that must be set in CONFIG (ADC) or
+   * CH[i].CONFIG (SAADC). */
+  uint32_t configure_resolution_bi_ ();
 
   static void process_queue_bi_ ();
   void complete_queue_bi_ ();

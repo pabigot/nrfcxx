@@ -206,8 +206,6 @@ struct SAADC_Peripheral : public ADC_Base {
     nrf5::SAADC->ENABLE = 1;
   }
 
-  static bool calibrating_bi_;
-
   static void disable_bi ()
   {
     nrf5::SAADC->ENABLE = 0;
@@ -256,6 +254,10 @@ struct SAADC_Peripheral : public ADC_Base {
     }
     return *result_ptr_;
   }
+
+  /** `true` if the ADC is performing a calibration; `false` if it is
+   * performing a conversion. */
+  static bool calibrating_bi_;
 };
 
 using ADC_Variant = SAADC_Peripheral;

@@ -275,6 +275,8 @@ ADC::try_sample_bi_ (ADCClient* client,
       rv = peripheral::start_bi();
     }
     if (0 == rv) {
+      /* NB: This branch entered only on nRF51.  For nRF51 the
+       * state update is performed in the IRQ */
       state_ = state_type::sampling;
     }
   }
@@ -356,6 +358,12 @@ ADC::irq_handler ()
       nrf5::SAADC->TASKS_SAMPLE = 1;
     }
   }
+  if (nrf5::SAADC->EVENTS_DONE) {
+    nrf5::SAADC->EVENTS_DONE = 0;
+  }
+  if (nrf5::SAADC->EVENTS_RESULTDONE) {
+    nrf5::SAADC->EVENTS_RESULTDONE = 0;
+  }
   if (nrf5::SAADC->EVENTS_END) {
     nrf5::SAADC->EVENTS_END = 0;
 
@@ -366,12 +374,6 @@ ADC::irq_handler ()
     nrf5::SAADC->TASKS_STOP = 1;
 
     (void)peripheral::normalize_bi();
-  }
-  if (nrf5::SAADC->EVENTS_DONE) {
-    nrf5::SAADC->EVENTS_DONE = 0;
-  }
-  if (nrf5::SAADC->EVENTS_RESULTDONE) {
-    nrf5::SAADC->EVENTS_RESULTDONE = 0;
   }
   if (nrf5::SAADC->EVENTS_STOPPED) {
     nrf5::SAADC->EVENTS_STOPPED = 0;
@@ -384,6 +386,71 @@ ADCClient* volatile ADC::owner_;
 notifier_type ADC::notify_callback_;
 ADC::state_type volatile ADC::state_;
 ADCClient::queue_type ADCClient::queue_;
+
+void
+ADCClient::resolution (uint8_t res,
+                       uint8_t exp,
+                       bool burst)
+{
+  if (!exp) {
+    burst = false;
+  }
+  resolution_ = 0
+    | (SR_RESOLUTION_Msk & (res << SR_RESOLUTION_Pos))
+    | (SR_OVERSAMPLE_Msk & (exp << SR_OVERSAMPLE_Pos))
+    | (SR_BURST_Msk & ((burst ? 1U : 0U) << SR_BURST_Pos))
+    ;
+}
+
+uint32_t
+ADCClient::resolution () const
+{
+  uint32_t rv = 0;
+  rv = (SR_RESOLUTION_Msk & resolution_) >> SR_RESOLUTION_Pos;
+#if (NRF51 - 0)
+  rv &= (ADC_CONFIG_RES_Msk >> ADC_CONFIG_RES_Pos);
+#else
+  rv &= (SAADC_RESOLUTION_VAL_Msk >> SAADC_RESOLUTION_VAL_Pos);
+#endif
+  return rv;
+}
+
+uint32_t
+ADCClient::oversample () const
+{
+  uint32_t rv = 0;
+#if !(NRF51 - 0)
+  rv = (SR_OVERSAMPLE_Msk & resolution_) >> SR_OVERSAMPLE_Pos;
+#endif
+  return rv;
+}
+
+bool
+ADCClient::burst () const
+{
+  bool rv = false;
+#if !(NRF51 - 0)
+  rv = !!((SR_BURST_Msk & resolution_) >> SR_BURST_Pos);
+#endif
+  return rv;
+}
+
+uint32_t
+ADCClient::configure_resolution_bi_ ()
+{
+  uint32_t rv = 0;
+#if (NRF51 - 0)
+  rv = resolution() << ADC_CONFIG_RES_Pos;
+#else /* NRF5x */
+  auto& SAADC = *nrf5::SAADC.instance();
+  SAADC.RESOLUTION = resolution();
+  SAADC.OVERSAMPLE = oversample();
+  if (burst()) { // should be true only if oversample() was non-zero
+    rv = (SAADC_CH_CONFIG_BURST_Enabled << SAADC_CH_CONFIG_BURST_Pos);
+  }
+#endif /* NRF5x */
+  return rv;
+}
 
 void
 ADCClient::complete_queue_bi_ ()
