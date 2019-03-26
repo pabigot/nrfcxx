@@ -178,7 +178,7 @@ public:
   /** Programmatic test for whether `DRDY` is asserted. */
   bool drdy_asserted () const
   {
-    return nrf5::GPIO->IN & (1U << iface_config_.drdy_psel);
+    return drdy_.read();
   }
 
   /** Post-extend to signal machine if start failed due to undetected
@@ -201,6 +201,7 @@ private:
   iface_config_type& iface_config_;
   observations_type observations_{};
   periph::GPIOTE::sense_listener drdy_listener_;
+  gpio::pin_reference drdy_;
   uint8_t odr_ = ODR_DEFAULT;
   uint16_t lost_drdy_ = 0;
 };

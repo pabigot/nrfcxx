@@ -346,9 +346,10 @@ systemState::systemOff (unsigned int preserve,
                         int button_psel)
 {
   if (0 <= button_psel) {
+    auto button_pr = gpio::pin_reference::create(button_psel);
     auto pin_cnf = gpio::PIN_CNF_RDONLY;
     pin_cnf |= ((GPIO_PIN_CNF_SENSE_High ^ board::button_active_low) << GPIO_PIN_CNF_SENSE_Pos);
-    nrf5::GPIO->PIN_CNF[button_psel] = pin_cnf;
+    button_pr.configure(pin_cnf);
   }
   controlledResetPrep_(preserve);
   __DSB();

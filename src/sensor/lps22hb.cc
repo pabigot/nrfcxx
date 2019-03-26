@@ -67,15 +67,14 @@ lps22hb::lps22hb (notifier_type notify,
                   unsigned int addr) :
   super{notify},
   iface_config_{ifc},
-  drdy_listener_{[this](const periph::GPIOTE::sense_status_type* sp){
-      drdy_callback_(sp);
-    }}
+  drdy_listener_{[this](auto sp)
+      {
+        drdy_callback_(sp);
+      }
+  },
+  drdy_{gpio::pin_reference::create(ifc.drdy_psel)}
 {
-  if ((0 > ifc.drdy_psel)
-      || (nrf5::GPIO_PSEL_COUNT <= ifc.drdy_psel)) {
-    failsafe(FailSafeCode::API_VIOLATION);
-  }
-  nrf5::GPIO->PIN_CNF[ifc.drdy_psel] = DRDY_IDLE_PIN_CNF;
+  drdy_.configure(DRDY_IDLE_PIN_CNF);
   if (1 < addr) {
     failsafe(FailSafeCode::API_VIOLATION);
   }
@@ -154,7 +153,7 @@ lps22hb::lpsm_process_ (int& delay,
     case state_machine::MS_ENTRY_STOPPED:
       cputs("disable path\n");
       drdy_listener_.disable();
-      nrf5::GPIO->PIN_CNF[iface_config_.drdy_psel] = DRDY_IDLE_PIN_CNF;
+      drdy_.configure(DRDY_IDLE_PIN_CNF);
       if (state_machine::MS_ENTRY_STOPPED == machine_.state()) {
         machine_.set_state(state_machine::MS_OFF);
         pf |= state_machine::PF_STOPPED;
@@ -165,7 +164,7 @@ lps22hb::lpsm_process_ (int& delay,
       }
       break;
     case state_machine::MS_ENTRY_START:
-      nrf5::GPIO->PIN_CNF[iface_config_.drdy_psel] = gpio::PIN_CNF_ACTIVE_HIGH_NOPULL;
+      drdy_.configure(gpio::PIN_CNF_ACTIVE_HIGH_NOPULL);
       drdy_listener_.enable();
       cprintf("* LPS22HB drdy psel %u: %d\n", iface_config_.drdy_psel, drdy_asserted());
       [[fallthrough]]

@@ -64,47 +64,42 @@ TWI::error_type
 TWI::clear_bus_ ()
 {
   unsigned int ec{};
-  uint8_t psel_scl = configuration_.psel_scl;
-  uint8_t psel_sda = configuration_.psel_sda;
-  uint32_t const scl_bit = (1U << psel_scl);
-  uint32_t const sda_bit = (1U << psel_sda);
-  uint32_t const bits = scl_bit | sda_bit;
   unsigned int const half_cycle_us = 5; /* Half cycle at 100 kHz */
-  bool cleared;
 
   /* Pull up SCL and SDA then turn off TWI and wait a cycle to
    * settle before sampling the signals. */
-  nrf5::GPIO->OUTSET = bits;
-  nrf5::GPIO->PIN_CNF[psel_scl] = PIN_CNF_RESET;
-  nrf5::GPIO->PIN_CNF[psel_sda] = PIN_CNF_RESET;
+  auto scl = gpio::pin_reference::create(configuration_.psel_scl);
+  auto sda = gpio::pin_reference::create(configuration_.psel_sda);
+  scl.set();
+  scl.configure(PIN_CNF_RESET);
+  sda.set();
+  sda.configure(PIN_CNF_RESET);
   twi_->ENABLE = (TWI_ENABLE_ENABLE_Disabled << TWI_ENABLE_ENABLE_Pos);
 
   delay_us(2 * half_cycle_us);
-  cleared = (bits == (bits & nrf5::GPIO->IN));
 
-  if (!cleared) {
+  if (!(scl.read() && sda.read())) {
     /* At least one of SCL or SDA is being held low by a follower
      * device.  Toggle the clock enough to flush both leader and
      * follower bytes, then see if it's let go. */
     int cycles = 18;
     while (0 < cycles--) {
-      nrf5::GPIO->OUTCLR = scl_bit;
+      scl.clear();
       delay_us(half_cycle_us);
-      nrf5::GPIO->OUTSET = scl_bit;
+      scl.set();
       delay_us(half_cycle_us);
     }
-    cleared = (bits == (bits & nrf5::GPIO->IN));
   }
 
-  if (cleared) {
+  if (scl.read() && sda.read()) {
     twi_->ENABLE = (TWI_ENABLE_ENABLE_Enabled << TWI_ENABLE_ENABLE_Pos);
   } else {
     ec |= TWI::ERR_CLEAR;
   }
 
   /* Put GPIOs back to disabled state */
-  nrf5::GPIO->PIN_CNF[psel_sda] = PIN_CNF_DISABLED;
-  nrf5::GPIO->PIN_CNF[psel_scl] = PIN_CNF_DISABLED;
+  scl.configure(PIN_CNF_DISABLED);
+  sda.configure(PIN_CNF_DISABLED);
 
   return ec;
 }
@@ -161,8 +156,8 @@ TWI::bus_configure (int psel_scl,
     configuration_.psel_scl = psel_scl;
     configuration_.ppidx = ppidx;
 
-    nrf5::GPIO->PIN_CNF[psel_scl] = PIN_CNF_DISABLED;
-    nrf5::GPIO->PIN_CNF[psel_sda] = PIN_CNF_DISABLED;
+    gpio::pin_reference::create(psel_scl).configure(PIN_CNF_DISABLED);
+    gpio::pin_reference::create(psel_sda).configure(PIN_CNF_DISABLED);
   } while (0);
 
   return error_encoded(ec);

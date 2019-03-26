@@ -379,7 +379,7 @@ public:
    * `false`. */
   bool live_state () const
   {
-    return (1U << psel) & nrf5::GPIO->IN;
+    return pinref_.read();
   }
 
   /** Synthesize pin state from an event ordinal. */
@@ -420,6 +420,8 @@ protected:
   change_callback_bi callback_;
 
   state_type volatile state_bi_;
+
+  gpio::pin_reference pinref_;
 };
 
 } // ns sensor

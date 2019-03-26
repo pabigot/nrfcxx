@@ -31,11 +31,12 @@ contact::contact (uint8_t psel,
                   uint32_t pin_cnf) :
   psel{psel},
   callback_{callback},
-  state_bi_{}
+  state_bi_{},
+  pinref_{gpio::pin_reference::create(psel)}
 {
   state_bi_.ordinal = -1;
   state_bi_.captured_ts_ = now();
-  nrf5::GPIO->PIN_CNF[psel] = pin_cnf;
+  pinref_.configure(pin_cnf);
   record_change_bi(live_state());
 }
 

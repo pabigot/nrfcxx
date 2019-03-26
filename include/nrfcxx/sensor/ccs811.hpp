@@ -369,10 +369,7 @@ public:
   /** Programmatic test for whether `INTn` is asserted. */
   bool intn_asserted () const
   {
-    if (0 > intn_psel_) {
-      return false;
-    }
-    return !((1U << intn_psel_) & nrf5::GPIO->IN);
+    return !intn_.read();
   }
 
   /** Construct and return an RAII object that supports TWI
@@ -892,6 +889,7 @@ private:
 
   gpio::active_low waken_;
   gpio::active_low resetn_;
+  gpio::pin_reference intn_;
 
   periph::GPIOTE::sense_listener intn_listener_;
   observations_type observations_{};
@@ -899,7 +897,6 @@ private:
   uint64_t baseline_saved_utt_{};
   uint32_t env_data_ = -1;
 
-  int8_t intn_psel_;
   uint8_t addr_;
   uint8_t drive_mode_ = DEFAULT_DRIVE_MODE;
 };

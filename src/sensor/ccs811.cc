@@ -331,21 +331,21 @@ ccs811::ccs811 (notifier_type setter,
   iface_config_{ifc},
   waken_{ifc.waken},
   resetn_{ifc.resetn},
-  intn_listener_{[this](const periph::GPIOTE::sense_status_type* sp){
-      intn_callback_(sp);
-    }},
-  intn_psel_{static_cast<int8_t>(((0 <= ifc.intn_psel) && (ifc.intn_psel < 32)) ? ifc.intn_psel : -1)},
+  intn_{gpio::pin_reference::create(ifc.intn_psel)},
+  intn_listener_{[this](auto sp)
+      {
+        intn_callback_(sp);
+      }
+  },
   addr_(0x5A + addr_sec)
 {
   if ((!ifc.waken.valid())
-      || (!ifc.resetn.valid())
-      || (0 > intn_psel_)
-      || (nrf5::GPIO_PSEL_COUNT <= intn_psel_)) {
+      || (!ifc.resetn.valid())) {
     failsafe(FailSafeCode::API_VIOLATION);
   }
   waken_.enable();
   resetn_.enable();
-  nrf5::GPIO->PIN_CNF[intn_psel_] = gpio::PIN_CNF_ACTIVE_LOW_NOPULL;
+  intn_.configure(gpio::PIN_CNF_ACTIVE_LOW_NOPULL);
   intn_listener_.enable();
 }
 

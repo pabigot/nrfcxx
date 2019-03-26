@@ -101,11 +101,12 @@ main (void)
 #endif /* NRFCXX_BOARD_PSEL_BUTTON1 */
 
   {
-    static constexpr uint8_t psel = NRFCXX_BOARD_PSEL_BUTTON0;
-    printf("PIN_CNF %08lx\n", nrf5::GPIO->PIN_CNF[psel]);
-    printf("us b0 = %u\n", gpio::update_sense_bi(psel));
-    printf("us b0 = %u\n", gpio::update_sense_bi(psel));
-    printf("PIN_CNF %08lx\n", nrf5::GPIO->PIN_CNF[psel]);
+    auto pinref = gpio::pin_reference::create(NRFCXX_BOARD_PSEL_BUTTON0);
+
+    printf("PIN_CNF %08lx\n", pinref.configuration());
+    printf("us b0 = %u\n", gpio::update_sense_bi(pinref.global_psel));
+    printf("us b0 = %u\n", gpio::update_sense_bi(pinref.global_psel));
+    printf("PIN_CNF %08lx\n", pinref.configuration());
   }
 
   NVIC_EnableIRQ(GPIOTE_IRQn);

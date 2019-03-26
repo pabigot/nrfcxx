@@ -422,7 +422,12 @@ public:
 private:
   pin_reference (const nrf5::GPIO_Type& peripheral,
                  int psel,
-                 int begin_psel);
+                 int begin_psel) :
+    global_psel(psel),
+    local_psel(psel - begin_psel),
+    local_bit{1U << local_psel},
+    peripheral{peripheral}
+  { }
 };
 
 /** Class supporting a generic GPIO pin interface.
@@ -732,8 +737,9 @@ clear_sense (unsigned int psel)
 {
   mutex_type mutex;
 
-  const uint32_t pin_cnf = nrf5::GPIO->PIN_CNF[psel];
-  nrf5::GPIO->PIN_CNF[psel] = pin_cnf & ~GPIO_PIN_CNF_SENSE_Msk;
+  auto pinref = gpio::pin_reference::create(psel);
+  const uint32_t pin_cnf = pinref.configuration();
+  pinref.configure(pin_cnf & ~GPIO_PIN_CNF_SENSE_Msk);
 }
 
 /** Function to set the SENSE field of a GPIO pin configuration
