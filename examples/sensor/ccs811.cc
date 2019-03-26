@@ -29,6 +29,7 @@ void GPIOTE_IRQHandler (void)
 } // extern "C"
 
 #if ((NRFCXX_BOARD_IS_BLE400 - 0)               \
+     || (NRFCXX_BOARD_IS_XENON - 0)             \
      || (NRFCXX_BOARD_IS_PCA10028 - 0)          \
      || (NRFCXX_BOARD_IS_PCA10040 - 0))
 #define WAKEn_PSEL NRFCXX_BOARD_PSEL_SCOPE3
@@ -200,15 +201,16 @@ main (void)
             rc = threshold.observation_beacon_changed(bcn, nbcn);
             if (rc) {
               printf("Beacon changed significantly: %d\n", rc);
-              printf(" %08lx %u %u vs %08lx %u %u\n",
-                     bcn.env_data, bcn.eCO2, bcn.eTVOC,
-                     nbcn.env_data, nbcn.eCO2, nbcn.eTVOC);
+              printf(" %04x %08lx %u %u vs %04x %08lx %u %u\n",
+                     bcn.baseline, bcn.env_data, bcn.eCO2, bcn.eTVOC,
+                     nbcn.baseline, nbcn.env_data, nbcn.eCO2, nbcn.eTVOC);
               oc = " CHGD";
               bcn = nbcn;
             }
           }
-          printf("%s ; %5u eCO2 ; %5u eTVOC ; st %04x ; B %04x ; %s%s\n",
+          printf("%s %c %5u eCO2 ; %5u eTVOC ; st %04x ; B %04x ; %s%s\n",
                  uptime::as_text(sysut, uptime::now()),
+                 obs.is_ready() ? ':' : '!',
                  obs.eCO2, obs.eTVOC, obs.status,
                  obs.baseline,
                  uptime::as_text(snsut, systemState::total_now() - ccs811.retained_state().reset_utt),
