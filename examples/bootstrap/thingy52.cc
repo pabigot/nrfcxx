@@ -409,9 +409,6 @@ main (void)
           ledr.off();
           ledg.on();
         }
-        if (board::power_monitor::PF_CALIBRATED & pf) {
-          puts("POWER calibration completed");
-        }
         if (state_machine::PF_OBSERVATION & pf) {
           cprintf("%s BATT %d mV\n", uptime::as_text(as_text, now), powermon.batt_mV());
         }

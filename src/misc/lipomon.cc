@@ -10,7 +10,14 @@
 #include <nrfcxx/console/null.hpp>
 #endif
 
+#define INSTR_PSEL_AUX NRFCXX_BOARD_PSEL_SCOPEn
+
 namespace nrfcxx {
+
+namespace {
+gpio::instr_psel<INSTR_PSEL_AUX> instr_aux;
+} // ns anonymous
+
 namespace misc {
 
 lipo_monitor::lipo_monitor (notifier_type notify,
@@ -26,6 +33,7 @@ lipo_monitor::lipo_monitor (notifier_type notify,
   chgn_state_{chgn_state},
   battmeas_{battmeas}
 {
+  instr_aux.enable();
 }
 
 void
@@ -33,6 +41,7 @@ lipo_monitor::callback_bi_ (const periph::GPIOTE::sense_status_type* sp)
 {
   int ud = -1;
   int cs = -1;
+  instr_aux.assert();
   while ((0 <= sp)
          && ((0 > ud)
              || (0 > cs))) {
@@ -66,7 +75,7 @@ lipo_monitor::callback_bi_ (const periph::GPIOTE::sense_status_type* sp)
   if ((1 < ud) || (1 < cs) || (ps_cap != ps_prc)) {
     machine_.post_event();
   }
-
+  instr_aux.deassert();
 }
 
 int
@@ -74,17 +83,6 @@ lipo_monitor::power_source () const
 {
   mutex_type mutex;
   return (FL_PWRSRCPRC_Msk & flags_bi_) >> FL_PWRSRCPRC_Pos;
-}
-
-int
-lipo_monitor::calibrate ()
-{
-  using lpm::state_machine;
-  if (state_machine::MS_IDLE != machine_.state()) {
-    return -1;
-  }
-  machine_.set_state(MS_ENTRY_CALIBRATE, true);
-  return 0;
 }
 
 int
@@ -200,79 +198,33 @@ lipo_monitor::lpsm_process_ (int& delay,
       machine_.set_state(state_machine::MS_OFF);
       break;
     case state_machine::MS_ENTRY_START:
-      // Most was done above.  Do the rest.
+      // Most was done above.  Mark started, then initiate a battery
+      // sample.
       pf |= state_machine::PF_STARTED;
+      machine_.set_state(state_machine::MS_ENTRY_SAMPLE);
       [[fallthrough]]
-    case MS_ENTRY_CALIBRATE:
-      flags &= ~FL_CALIBRATED;
-      {
-        mutex_type mutex;
-        flags_bi_ &= ~FL_CALIBRATED;
-      }
-      cputs("* PWRMON calibrating");
-      adc_pending_ = true;
-      adc_calibrating_ = 1;
-      machine_.set_state(MS_EXIT_CALIBRATE);
-      rc = battmeas_.queue([this]{
-          adc_calibrating_ = 0;
-          machine_.post_event();
-        }, [this](auto rc)
-        {
-          adc_pending_ = false;
-          if (0 > rc) {
-            adc_calibrating_ = -1;
-            machine_.post_event();
-          }
-        }, true);
-      // FALLTHRU
-    case MS_EXIT_CALIBRATE:
-      {
-        adc_mutex_type mutex;
-        if (adc_pending_
-            || (0 < adc_calibrating_)) {
-          /* Calibration still in queue or still running. */
-          break;
-        }
-        rc = adc_calibrating_;
-      }
+    case state_machine::MS_ENTRY_SAMPLE:
+      rc = battmeas_.sample_setup();
       if (0 > rc) {
-        cprintf("*** PWRMON calibration failed: %d\n", rc);
         break;
       }
-      machine_.set_state(MS_ENTRY_VBATT);
-      pf |= PF_CALIBRATED;
-      flags |= FL_CALIBRATED;
-      cputs("* PWRMON calibrated");
-      {
-        mutex_type mutex;
-        flags_bi_ |= FL_CALIBRATED;
-      }
-      // FALLTHRU
-    case MS_ENTRY_VBATT:
-      if (!(FL_CALIBRATED & flags)) {
-        /* Can't sample without calibration.
-         *
-         * @todo Prove this can't get into a loop. */
-        machine_.set_state(MS_ENTRY_CALIBRATE, true);
+      machine_.set_state(state_machine::MS_SAMPLE);
+      if (0 != rc) {
+        delay = rc;
         break;
       }
-      machine_.set_state(MS_VBATT);
-      delay = battmeas_.sample_setup();
-      if (delay) {
-        break;
-      }
-      // FALLTHRU
-    case MS_VBATT:
-      adc_pending_ = true;
-      adc_sampling_ = 1;
-
+      [[fallthrough]]
+    case state_machine::MS_SAMPLE:
       /* Record that we're sampling and the sample isn't corrupted. */
       {
         mutex_type mutex;
+
         auto mfl = flags_bi_ & ~FL_SAMPLE_CORRUPTED;
         flags_bi_ = FL_SAMPLING | mfl;
+        adc_pending_ = true;
+        adc_sampling_ = 1;
       }
-      machine_.set_state(MS_EXIT_VBATT);
+      machine_.set_state(state_machine::MS_EXIT_SAMPLE);
       rc = battmeas_.queue([this]{
           adc_sampling_ = 0;
           machine_.post_event();
@@ -284,8 +236,8 @@ lipo_monitor::lpsm_process_ (int& delay,
             machine_.post_event();
           }
         });
-      // FALLTHRU
-    case MS_EXIT_VBATT:
+      [[fallthrough]]
+    case state_machine::MS_EXIT_SAMPLE:
       {
         adc_mutex_type mutex;
         if (adc_pending_
@@ -293,7 +245,8 @@ lipo_monitor::lpsm_process_ (int& delay,
           /* Sample still in queue or still running. */
           break;
         }
-        rc = adc_calibrating_;
+        rc = adc_sampling_;
+        adc_sampling_ = 0;
       }
       battmeas_.sample_teardown();
       if (0 > rc) {

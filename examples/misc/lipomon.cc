@@ -23,6 +23,7 @@
 #include <nrfcxx/led.hpp>
 #include <nrfcxx/periph.hpp>
 #include <nrfcxx/utility.hpp>
+#include <nrfcxx/sensor/adc.hpp>
 #include <nrfcxx/sensor/button.hpp>
 
 #if (NRFCXX_BOARD_IS_THINGY52 - 0)
@@ -41,8 +42,9 @@ namespace {
 
 constexpr nrfcxx::event_set::event_type EVT_ALARM = 0x01;
 constexpr nrfcxx::event_set::event_type EVT_BUTTON = 0x02;
-constexpr nrfcxx::event_set::event_type EVT_POWERMON = 0x04;
-constexpr nrfcxx::event_set::event_type EVT_SHOWBATT = 0x08;
+constexpr nrfcxx::event_set::event_type EVT_CALADC = 0x04;
+constexpr nrfcxx::event_set::event_type EVT_POWERMON = 0x08;
+constexpr nrfcxx::event_set::event_type EVT_SHOWBATT = 0x10;
 nrfcxx::event_set events;
 
 /* Best-practice idiom for managing state across sessions.  This
@@ -136,6 +138,16 @@ main (void)
 
   int rc;
 
+  sensor::adc::calibrator caladc{events.make_setter(EVT_CALADC), 60, 100};
+#if (NRF51 - 0)
+  caladc.resolution(ADC_CONFIG_RES_10bit);
+#else // nRF5x
+  caladc.resolution(SAADC_RESOLUTION_VAL_14bit);
+#endif /* nRF5x */
+  rc = caladc.lpsm_start();
+  cprintf("ADC calibrator start got %d: %d %d\n",
+          rc, caladc.latest_cCel(), caladc.calibrated_cCel());
+
   board::power_monitor powermon{events.make_setter(EVT_POWERMON)};
   rc = powermon.lpsm_start();
   cprintf("Powermon start got %d\n", rc);
@@ -157,7 +169,6 @@ main (void)
   ledg.enable();
   ledb.enable();
 
-  bool sample_batt = true;
   do {
     using clock::uptime;
     using lpm::state_machine;
@@ -188,11 +199,27 @@ main (void)
     if (pending.test_and_clear(EVT_BUTTON)) {
       button.process();
     }
+    if (pending.test_and_clear(EVT_CALADC)) {
+      auto& machine = caladc.machine();
+      if (auto pf = caladc.lpsm_process()) {
+        if (caladc.PF_CALIBRATED & pf) {
+          cprintf("%s ADC calibrated at %d\n", uptime::as_text(as_text, uptime::now()),
+                  caladc.calibrated_cCel());
+        }
+      } else if (machine.has_error()) {
+        cprintf("%s: caladc error %d in %x\n", uptime::as_text(as_text, uptime::now()),
+                caladc.lpsm_process_rc(), machine.state());
+      } else if (false) {
+        cprintf("%s: caladc nop %x got %d\n", uptime::as_text(as_text, uptime::now()),
+                machine.state(), caladc.lpsm_process_rc());
+      }
+    }
     if (pending.test_and_clear(EVT_POWERMON)) {
-      if (auto pf{powermon.lpsm_process()}) {
+      auto& machine = powermon.machine();
+      if (auto pf = powermon.lpsm_process()) {
         using lpm::state_machine;
         if (state_machine::PF_STARTED & pf) {
-          cputs("POWER started\n");
+          cputs("POWER started");
         }
         if (board::power_monitor::PF_MAINS & pf) {
           cputs("POWER on external");
@@ -212,26 +239,11 @@ main (void)
           ledr.off();
           ledg.on();
         }
-        if (board::power_monitor::PF_CALIBRATED & pf) {
-          puts("POWER calibration completed");
-        }
         if (state_machine::PF_OBSERVATION & pf) {
           cprintf("%s BATT %d mV\n", uptime::as_text(as_text, now), powermon.batt_mV());
         }
-        /* We want a battery sample on startup, but we can't do it
-         * until all power monitor startup activities complete.
-         * That'll put us in PF_LIPO, PF_CHARGING, or PF_CHARGED but
-         * we can't tell which state.  We could check for IDLE
-         * explicitly, or just rely on the one built in to
-         * lpsm_sample() which is a bit more robust. */
-        if (sample_batt) {
-          rc = powermon.lpsm_sample();
-          if (0 <= rc) {
-            sample_batt = false;
-          }
-        }
-      } else if (powermon.machine().has_error()) {
-        cprintf("POWER machine error %d\n", powermon.machine().error());
+      } else if (machine.has_error()) {
+        cprintf("POWER machine error %d\n", machine.error());
       }
     }
     if (pending.test_and_clear(EVT_SHOWBATT)) {

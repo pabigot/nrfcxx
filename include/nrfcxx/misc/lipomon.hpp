@@ -29,8 +29,8 @@ namespace misc {
  *
  * lpm::lpsm_capable::lpsm_process() for this sensor returns the
  * following flags:
- * * lpm::state_machine::PF_STARTED when BAT_MON_EN has been asserted.
- *   On receipt calibrate() should be invoked;
+ * * lpm::state_machine::PF_STARTED when the machine has started and
+ *   lpsm_sample() may be successfully invoked;
  * * lpm::state_machine::PF_OBSERVATION when a new battery voltage
  *   measurement is available from batt_mV();
  * * #PF_LIPO when the system is discovered to be running on battery;
@@ -39,13 +39,13 @@ namespace misc {
  * * #PF_CHARGING when the LiPo battery begins charging from external
  *    power;
  * * #PF_CHARGED when the LiPo battery completes charging from
- *    external power;
- * * #PF_CALIBRATED when ADC calibration completes, allowing
- *   lpm::lpsm_capable::lpsm_sample() to be successfully invoked.
+ *    external power.
  *
- * calibrate() should be invoked by the application on startup and
- * whenever the ambient temperature changes by more than 10 Cel from
- * the last calibration. */
+ * @note This class uses the ADC in single-ended mode through a
+ * referenced instance of sensor::adc::voltage_divider.  Calibration
+ * of the ADC is the responsibility of the application, preferably by
+ * using an instance of sensor::adc::calibrator parallel to the
+ * lipo_monitor instance. */
 class lipo_monitor : public lpm::lpsm_capable
 {
   using super = lpm::lpsm_capable;
@@ -60,9 +60,9 @@ public:
     PS_Unknown = 0,
     /** V_BUS is zero.  Values greater than this have V_BUS non-zero. */
     PS_OnBattery = 1,
-    /** V_BUS is non-zero and TCK106 charging active. */
+    /** V_BUS is non-zero and XC680x charging active. */
     PS_Charging = 2,
-    /** V_BUS is non-zero and TCK106 charging not active. */
+    /** V_BUS is non-zero and XC680x charging not active. */
     PS_Charged = 3,
   };
 
@@ -82,17 +82,13 @@ private:
     FL_PWRSRCPRC_Pos = 2U,
     FL_PWRSRCPRC_Msk = 0x03 << FL_PWRSRCPRC_Pos,
 
-    /** Bit set in #flags_bi_ to indicate that a calibrate() operation has
-     * completed. */
-    FL_CALIBRATED = 0x10,
-
     /** Bit set in #flags_bi_ to indicate that the ADC is collecting a
      * sample of the battery voltage. */
-    FL_SAMPLING = 0x20,
+    FL_SAMPLING = 0x10,
 
     /** Bit set in #flags_bi_ to indicate that the power source changed
      * while #FL_SAMPLING was set. */
-    FL_SAMPLE_CORRUPTED = 0x40,
+    FL_SAMPLE_CORRUPTED = 0x20,
   };
 
   /* Power source changes affecting #PF_LIPO, #PF_MAINS, #PF_CHARGING,
@@ -102,30 +98,18 @@ private:
    *
    * * ENTRY_START enables change detection on VCHG_DETECT and
    *   CHGn_STATE, captures their initial state, and sets PF_STARTED.
-   *   It falls through to ENTRY_CALIBRATE.
+   *   It falls through to ENTRY_SAMPLE.
    *
-   * * ENTRY_CALIBRATE queues an ADC calibration and falls into
-   *   EXIT_CALIBRATE.
-   *
-   * * EXIT_CALIBRATE loops until calibration resolved, then records
-   *   state of calibration and falls into ENTRY_VBATT.
-   *
-   * * ENTRY_VBATT if not calibrated jumps to ENTRY_CALIBRATE.
-   *   Otherwise it invokes sample_setup() and transitions to VBATT
+   * * ENTRY_SAMPLE invokes sample_setup() and transitions to SAMPLE
    *   (after a setup delay if necessary).
    *
-   * * VBATT queues an ADC collection and transitions to EXIT_VBATT.
+   * * SAMPLE queues an ADC collection and transitions to EXIT_SAMPLE.
    *
-   * * EXIT_VBATT is blocked until the ADC completes, then it invokes
+   * * EXIT_SAMPLE is blocked until the ADC completes, then it invokes
    *   sample_teardown() and processes the sample, emitting
    *   #PF_OBSERVATION if the collection was valid.  It then
    *   transitions to IDLE.
    */
-  static constexpr auto MS_ENTRY_CALIBRATE = lpm::state_machine::MS_ENTRY_SAMPLE + 1;
-  static constexpr auto MS_EXIT_CALIBRATE = lpm::state_machine::MS_EXIT_SAMPLE + 1;
-  static constexpr auto MS_ENTRY_VBATT = lpm::state_machine::MS_ENTRY_SAMPLE;
-  static constexpr auto MS_VBATT = lpm::state_machine::MS_SAMPLE;
-  static constexpr auto MS_EXIT_VBATT = lpm::state_machine::MS_EXIT_SAMPLE;
 
 public:
   static constexpr auto PF_STARTED = lpm::state_machine::PF_STARTED;
@@ -152,11 +136,6 @@ public:
    * lpm::lpsm_capable::lpsm_process() that the LiPo battery has
    * completed charging. */
   static constexpr auto PF_CHARGED = lpm::state_machine::PF_APP_BASE << 3;
-
-  /** Sensor-specific indication from
-   * lpm::lpsm_capable::lpsm_process() that the battery voltage sensor
-   * has been calibrated. */
-  static constexpr auto PF_CALIBRATED = lpm::state_machine::PF_APP_BASE << 5;
 
   /** Construct an instance.
    *
@@ -189,12 +168,6 @@ public:
   {
     return vchg_detect_.read() && !chgn_state_.read();
   }
-
-  /** Initiate a calibration of the ADC used to measure voltage.
-   *
-   * @return zero on success, negative if the state machine is
-   * busy. */
-  int calibrate ();
 
   /** The most recently collected LiPo output voltage.
    *
@@ -238,7 +211,6 @@ private:
 
   // These three protected by adc_mutex_type, if necessary.
   bool volatile adc_pending_ = false;
-  int8_t volatile adc_calibrating_ = 0;
   int8_t volatile adc_sampling_ = 0;
 };
 
