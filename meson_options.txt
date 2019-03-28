@@ -24,6 +24,10 @@ option('build-examples',
        value: true,
        description: 'Select to build all examples supported by board')
 
+option('build-apps',
+       type: 'string',
+       description: 'Whitespace-separated list of applications to build')
+
 # Local Variables:
 # mode:meson
 # End:
