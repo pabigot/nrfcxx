@@ -64,6 +64,9 @@ namespace sd {
  * * 0x80 @link sensor::ccs811::beacon_frame_type CCS811
  *   status@endlink providing CCS811 version information and baseline
  *   maintenance status.
+ * * 0x81 @link sensor::ccs811::system_frame_type CCS811
+ *   status@endlink providing CCS811 system status.
+ * * 0x82 A proprietary beacon providing weather station data.
  */
 class Beacon
 {
