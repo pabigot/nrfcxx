@@ -6,7 +6,7 @@ foreach base : [
   'beacon',
   'stdbeacon',
 ]
-  executable('sd-' + base, base + '.cc',
+  executable(base, base + '.cc',
            link_with: nrfsdbc_lib,
            link_args: [
              sd_memory_link_arg,

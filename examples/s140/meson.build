@@ -4,7 +4,7 @@
 foreach base : [
   'nop',
 ]
-  executable('sd-' + base, base + '.cc',
+  executable(base, base + '.cc',
              link_args: [
                sd_memory_link_arg,
                ldargs_for_exe,
