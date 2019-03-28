@@ -7,6 +7,7 @@
 #include <nrfcxx/board/xenon.hpp>
 #include <nrfcxx/misc/lipomon.hpp>
 #include <nrfcxx/sensor/adc.hpp>
+#include <nrfcxx/sensor/utils.hpp>
 
 namespace nrfcxx {
 namespace board {
@@ -38,6 +39,12 @@ power_monitor::power_monitor (notifier_type notify) :
    * current drops below 50 mA at which point it stops.
    */
   meas_vbatt.resolution(SAADC_RESOLUTION_VAL_14bit);
+}
+
+unsigned int
+battery_level_pptt (unsigned int batt_mV)
+{
+  return sensor::battery_level_pptt(batt_mV, sensor::dischargeCurve::lipo);
 }
 
 bool
