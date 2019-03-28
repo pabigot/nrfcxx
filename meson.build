@@ -190,7 +190,9 @@ if meson.is_cross_build()
                                         link_with: nrfsd_lib)
   endif
 
-  subdir('examples')
+  if get_option('build-examples')
+    subdir('examples')
+  endif
 else
   gtest_sp = subproject('gtest')
   gmock_dep = gtest_sp.get_variable('gmock_main_dep')
