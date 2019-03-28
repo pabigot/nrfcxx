@@ -338,21 +338,8 @@ power_monitor::power_monitor (notifier_type notify) :
 unsigned int
 battery_level_pptt (unsigned int batt_mV)
 {
-  /* "Curve" here eyeballed from captured e58eaf327317 data between
-   * 2018-10-28T07:20-0500 and 2018-10-29T02:30-0500.  This sensor
-   * started with a charge of 3.96 V and dropped about linearly to 3.58
-   * V over 15 hours.  It then dropped rapidly to 3.10 V over one hour,
-   * at which point it stopped transmitting.
-   *
-   * Based on eyeball comparisons we'll say that 15/16 of life goes
-   * between 3.95 and 3.55 V, and 1/16 goes between 3.55 V and 3.1 V. */
-  const nrfcxx::sensor::battery_level_point_type discharge_curve[] = {
-    {10000, 3950},
-    {625, 3550},
-    {0, 3100},
-  };
 
-  return sensor::battery_level_pptt(batt_mV, discharge_curve);
+  return sensor::battery_level_pptt(batt_mV, sensor::dischargeCurve::lipo);
 }
 
 int

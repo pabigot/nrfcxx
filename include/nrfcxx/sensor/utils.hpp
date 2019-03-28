@@ -102,6 +102,21 @@ struct battery_level_point_type
 unsigned int battery_level_pptt (unsigned int batt_mV,
                                  const battery_level_point_type* curve);
 
+namespace dischargeCurve {
+
+/** A discharge curve calibrated from standard Alkaline batteries.
+ *
+ * Specifically for Amazon Basics AA cells, but probably generic. */
+extern const battery_level_point_type alkaline[];
+
+/** A discharge curve calibrated from LiPo batteries.
+ *
+ * Specifically ones like [Adafruit 3.7v 2000
+ * mAh](https://www.adafruit.com/product/2011) */
+extern const battery_level_point_type lipo[];
+
+} // ns dischargeCurve
+
 } // ns sensor
 } // ns nrfcxx
 
