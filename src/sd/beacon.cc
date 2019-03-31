@@ -204,7 +204,7 @@ Beacon::process_event ()
     }
   } while (false);
   if (err) {
-    printf("** Beacon %p failed: %x\n", active_, err);
+    //printf("** Beacon %p failed: %x\n", active_, err);
     active_->state_ = FAILED;
     active_ = nullptr;
     if (!readyq_.empty()) {
