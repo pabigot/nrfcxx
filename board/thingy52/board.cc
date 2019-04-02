@@ -332,6 +332,7 @@ power_monitor::power_monitor (notifier_type notify) :
    * V_BATT reaches 4.2 V (or when battery or V_BUS are
    * removed/restored), but if the charge current is too low it will
    * stop. */
+  meas_vbatt.resolution(SAADC_RESOLUTION_VAL_14bit);
 }
 
 unsigned int

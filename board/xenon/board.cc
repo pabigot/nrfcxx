@@ -37,6 +37,7 @@ power_monitor::power_monitor (notifier_type notify) :
    * V, then continues with charging at constant voltage until charge
    * current drops below 50 mA at which point it stops.
    */
+  meas_vbatt.resolution(SAADC_RESOLUTION_VAL_14bit);
 }
 
 bool
