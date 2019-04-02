@@ -210,7 +210,8 @@ struct SAADC_Peripheral : public ADC_Base {
   {
     nrf5::SAADC->ENABLE = 0;
     nvic_DisableIRQ(IRQn);
-    nrf5::SAADC->INTENCLR = inten;
+    nrf5::SAADC->INTENCLR = -1;
+    nvic_ClearPendingIRQ(IRQn);
   }
 
   static int calibrate_bi ()

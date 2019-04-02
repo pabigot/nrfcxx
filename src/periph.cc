@@ -358,6 +358,39 @@ ADC::irq_handler ()
       nrf5::SAADC->TASKS_SAMPLE = 1;
     }
   }
+  /* The expected order is `(DONE+ RESULTDONE)+ END`.
+   *
+   * Within the resolution of a 500 MS/s logic analyzer sometimes the
+   * RESULTDONE signal is triggered before the final DONE signal
+   * (observed with oversampling, DONE lags 6-8 ns).
+   *
+   * The END signal comes in about 120-125 ns after the final
+   * RESULTDONE.
+   *
+   * With the softdevice active it's been observed that clearing the
+   * events in the order `DONE RESULTDONE END` can result in the ISPR
+   * register for SAADC remaining set after STOPPED has been
+   * confirmed.
+   *
+   * This causes WFE to exit immediately, with horrible impact on
+   * energy consumption (sleep rates that should be 99.7% are actually
+   * 82%).
+   *
+   * Since soft device priority is higher than SAADC a plausible
+   * explanation is that this FLIH is being interrupted after the
+   * point DONE or RESULTDONE were cleared but before or during END,
+   * and when it resumes only END is processed.  So it's plausible an
+   * additional DONE or RESULTDONE was triggered after the
+   * corresponding EVENTS register was cleared, which would set the
+   * ISPR.
+   *
+   * However, in this situation the EVENTS registers are, in fact,
+   * cleared by the FLIH even though ISPR is set, so it's not that.
+   *
+   * Absent any explanation for how this situation can arise "resolve"
+   * it by clearing the IRQ Pending bit in the peripheral
+   * implementation after disabling the interrupt.
+   */
   if (nrf5::SAADC->EVENTS_DONE) {
     nrf5::SAADC->EVENTS_DONE = 0;
   }
