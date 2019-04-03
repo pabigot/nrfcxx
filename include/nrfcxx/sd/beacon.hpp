@@ -992,7 +992,8 @@ public:
    *
    * Following the last optional member there will be:
    * * zero or more `int16_t` values providing thermistor measurements
-   *   in cCel, with flag values as with #FT_FLAG_TEMPERATURE;
+   *   in cCel, with flag values as with #FT_FLAG_TEMPERATURE with
+   *   invalid flag values from sensor::adc::ntcThermistor.
    * * a CRC-16/DNP checksum.
    *
    * If there are bits set in frame_prefix_s::flags after the highest
@@ -1017,8 +1018,8 @@ public:
      * * Units: cCel
      * * Valid range: -299.99 Cel to 299.99 Cel
      *
-     * Values with a magnitude at or above 30000 cCel indicate an
-     * error reading.
+     * Values that are not @link sensor::is_stdenv_valid valid@endlink
+     * may carry information about sensor failure.
      *
      * The carried temperature is assumed to be measured at the beacon
      * device.  */
@@ -1034,7 +1035,10 @@ public:
      *
      * The carried humidity is assumed to be measured at the same
      * location as @link FT_FLAG_HAS_TEMPERATURE
-     * temperature@endlink. */
+     * temperature@endlink.
+     *
+     * Values that are not @link sensor::is_stdenv_valid valid@endlink
+     * may carry information about sensor failure. */
     FT_FLAG_HUMIDITY = 0x02,
 
     /** Flag indicating that the frame contains an absolute

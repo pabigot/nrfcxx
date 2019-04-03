@@ -13,6 +13,7 @@
 
 #include <nrfcxx/gpio.hpp>
 #include <nrfcxx/lpm.hpp>
+#include <nrfcxx/sensor/utils.hpp>
 
 namespace nrfcxx {
 namespace sensor {
@@ -88,7 +89,7 @@ public:
   int status () const;
 
   /** Value used for invalid temperature and humidity observations. */
-  static constexpr uint16_t INVALID_TEMPHUMID = 30000;
+  static constexpr uint16_t INVALID_TEMPHUMID = sensor::INVALID_stdenv;
 
   /** Value used for invalid pressure observations.
    *

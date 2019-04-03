@@ -4,6 +4,7 @@
 #include <nrfcxx/crc.hpp>
 #include <nrfcxx/gpio.hpp>
 #include <nrfcxx/sd/beacon.hpp>
+#include <nrfcxx/sensor/utils.hpp>
 
 // CRC-16/DNP
 using crc_type = nrfcxx::crc::crc16dnp_type;
@@ -41,8 +42,10 @@ temp_changed (int16_t ta,
               int16_t tb,
               unsigned int thr)
 {
-  bool inva = (30000 <= abs(ta));
-  bool invb = (30000 <= abs(tb));
+  using nrfcxx::sensor::is_stdenv_valid;
+
+  bool inva = !is_stdenv_valid(ta);
+  bool invb = !is_stdenv_valid(tb);
   if (inva != invb) {
     /* One valid, one not valid. */
     return -100;

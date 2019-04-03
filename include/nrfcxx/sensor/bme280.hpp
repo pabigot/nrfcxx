@@ -15,6 +15,7 @@
 
 #include <nrfcxx/lpm.hpp>
 #include <nrfcxx/periph.hpp>
+#include <nrfcxx/sensor/utils.hpp>
 
 namespace nrfcxx {
 namespace sensor {
@@ -48,7 +49,7 @@ public:
   static constexpr unsigned int SAMPLE_DELAY_utt = clock::uptime::from_ms(10);
 
   /** Value used for invalid temperature and humidity observations. */
-  static constexpr uint16_t INVALID_TEMPHUMID = 30000;
+  static constexpr uint16_t INVALID_TEMPHUMID = sensor::INVALID_stdenv;
 
   /** Value used for invalid pressure observations.
    *

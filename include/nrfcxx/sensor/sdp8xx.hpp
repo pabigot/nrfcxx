@@ -11,6 +11,7 @@
 #include <nrfcxx/clock.hpp>
 #include <nrfcxx/lpm.hpp>
 #include <nrfcxx/periph.hpp>
+#include <nrfcxx/sensor/utils.hpp>
 
 namespace nrfcxx {
 namespace sensor {
@@ -59,7 +60,7 @@ public:
    *
    * This fits in a 16-bit signed value and is outside the valid range
    * for both temperature_cCel() and diffpres_cPa(). */
-  constexpr static int INVALID_OBSERVATION = -30000;
+  constexpr static int INVALID_OBSERVATION = sensor::INVALID_stdenv;
 
   /** Storage for cached results. */
   struct observations_type

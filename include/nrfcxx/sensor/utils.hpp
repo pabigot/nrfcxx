@@ -11,10 +11,54 @@
 
 #include <array>
 #include <cinttypes>
+#include <cstdlib>
 #include <type_traits>
 
 namespace nrfcxx {
 namespace sensor {
+
+/** A flag value for invalid standard environmental readings.
+ *
+ * The value is chosen to allow its positive and negative values to be
+ * stored in an `int16_t` with magnitudes that are not reasonable for
+ * true observed measurements in either cCel (temperature) or pptt
+ * (humidity).  Any observation with a magnitude equal to or greater
+ * than this is invalid.
+ *
+ * Distinct values may indicate different types of failure.  For
+ * example the base value may indicates a reading that was not
+ * performed (perhaps because the sensor is not populated).  Assigned
+ * distinct values should remain less than @ref INVALID_TAGGED_stdenv,
+ * which can be used to provide an 11-bit code.
+ *
+ * The function is_stdenv_valid() can be used to test for validity of
+ * a standard environmental measurement. */
+static constexpr int INVALID_stdenv = 30000;
+
+/** A flag value to carry an 11-bit code as an invalid standard
+ * environmental reading.
+ *
+ * Values between 0x00 and @ref INVALID_MAX_TAG may be added to
+ * this base to carry additional identifying information about the
+ * reason why a specific environmental reading is not available. */
+static constexpr int INVALID_TAGGED_stdenv = 30720;
+
+/** The maximum value that can be added to @ref INVALID_TAGGED_stdenv
+ * and still produce a value that is identified as an invalid standard
+ * environmental reading. */
+static constexpr unsigned INVALID_MAX_TAG = 0x7FF;
+
+/** Function to test whether a standard environmental reading is valid.
+ *
+ * @param v a value for a standard environmental reading, such as
+ * temperature in cCel or humidity in pptt.
+ *
+ * @return `true` iff the value is a valid reading per @ref
+ * INVALID_stdenv. */
+inline bool is_stdenv_valid (int v)
+{
+  return abs(v) < INVALID_stdenv;
+}
 
 /** Convert a temperature from cK to cCel
  *

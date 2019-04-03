@@ -14,6 +14,7 @@
 
 #include <nrfcxx/periph.hpp>
 #include <nrfcxx/lpm.hpp>
+#include <nrfcxx/sensor/utils.hpp>
 
 namespace nrfcxx {
 namespace sensor {
@@ -503,17 +504,11 @@ public:
 
   /** An flag value for invalid temperatures.
    *
-   * The value is chosen to allow its positive and negative values to
-   * be stored in an `int16_t` with magnitudes that are not reasonable
-   * for true observed measurements.  Any observation with a magnitude
-   * equal to or greater than this is invalid.
-   *
-   * Distinct values may indicate different types of failure.  For
-   * example the base value indicates a reading that was not
-   * performed, while increasing the magnitude by one identifies
-   * thermistor inputs that are faulted @link SHORT_cCel short@endlink
-   * or @link OPEN_cCel open@endlink. */
-  static constexpr int INVALID_cCel = 30000;
+   * This specific value indicates that the thermistor is not
+   * populated.  Other values identify thermistors that are faulted
+   * @link SHORT_cCel short@endlink or @link OPEN_cCel
+   * open@endlink. */
+  static constexpr int INVALID_cCel = INVALID_stdenv;
 
   /** Measurement returned by temperature_cCel() for a shorted
    * thermistor.

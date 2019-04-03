@@ -13,6 +13,7 @@
 
 #include <nrfcxx/gpio.hpp>
 #include <nrfcxx/lpm.hpp>
+#include <nrfcxx/sensor/utils.hpp>
 
 namespace nrfcxx {
 namespace sensor {
@@ -143,7 +144,7 @@ public:
   int status () const;
 
   /** Value used to indicate that observations are not valid. */
-  static constexpr uint16_t INVALID_OBSERVATION = 30000;
+  static constexpr uint16_t INVALID_OBSERVATION = sensor::INVALID_stdenv;
 
   /** Structure used to return sampled values. */
   struct observations_type
