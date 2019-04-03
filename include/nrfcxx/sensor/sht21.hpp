@@ -97,7 +97,7 @@ public:
 
     /** A recently calculated valid humidity_pptt() or
      * #INVALID_OBSERVATION */
-    int16_t humidity_pptt = INVALID_OBSERVATION;
+    uint16_t humidity_pptt = INVALID_OBSERVATION;
   };
 
   /** Information required to communicate with a sensor instance.
