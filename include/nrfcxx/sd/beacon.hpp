@@ -91,6 +91,14 @@ public:
    * the terminating CRC-16/DNP present in some beacon payloads. */
   static constexpr size_t MAX_MSD_LENGTH = 19 + sizeof(crc_type);
 
+  /** The maximum permitted interval.
+   *
+   * Values greater than this may result in alarm deadlines that
+   * appear to be in the past, producing immediate retransmission.
+   *
+   * The value corresponds to a duration of 18:12:15.999969 H:M:S. */
+  static constexpr unsigned int INTERVAL_MAX = ((1U << 31) - 1);
+
   /** Values representing the beacon state.
    *
    * Most transitions are performed under application control, either
@@ -337,10 +345,23 @@ public:
    * @param utt the interval between scheduled beacons, in uptime
    * ticks.  The value must be nonzero.
    *
-   * @return zero on success, or a negative error code*/
+   * @return zero on success, or a negative error code */
   int set_interval (unsigned int utt)
   {
     return set_interval(utt, utt);
+  }
+
+  /** Configure a nominally one-shot beacon.
+   *
+   * This sets the retransmission interval to be [@ref INTERVAL_MAX,
+   * @ref INTERVAL_MAX], essentially producing a transmision on first
+   * activate() and thereafter only on reset_interval() or every
+   * eighteen hours.
+   *
+   * @return as with set_interval() */
+  int set_oneshot ()
+  {
+    return set_interval(INTERVAL_MAX, INTERVAL_MAX);
   }
 
   /** Configure an exponential back-off interval.

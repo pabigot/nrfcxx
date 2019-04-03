@@ -106,8 +106,12 @@ Beacon::validate () const
   if (0 == min_interval_) {
     return -1;
   }
-  if (min_interval_ > max_interval_) {
+  if ((min_interval_ > INTERVAL_MAX)
+      || (max_interval_ > INTERVAL_MAX)) {
     return -2;
+  }
+  if (min_interval_ > max_interval_) {
+    return -3;
   }
   return 0;
 }
@@ -276,7 +280,8 @@ Beacon::reset_interval ()
       unsigned int now = clock::uptime::now();
       unsigned int since = (now - last_due_);
       last_due_ = now;
-      if (min_interval_ > since) {
+      if ((min_interval_ < INTERVAL_MAX)
+          && (min_interval_ > since)) {
         last_due_ += since;
       }
       state_ = SCHEDULED;
@@ -306,8 +311,14 @@ Beacon::set_interval (unsigned int min_utt,
       && (prepare_backoff_ >= min_utt)) {
     return -3;
   }
-  if (min_utt > max_utt) {
+  if (min_utt > INTERVAL_MAX) {
     return -4;
+  }
+  if (min_utt > max_utt) {
+    return -5;
+  }
+  if (max_utt > INTERVAL_MAX) {
+    return -6;
   }
   min_interval_ = min_utt;
   max_interval_ = max_utt;
