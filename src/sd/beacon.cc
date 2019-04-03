@@ -143,7 +143,7 @@ Beacon::process_event ()
     if (BLE_GAP_ADV_SET_HANDLE_NOT_SET != handle_) {
       err = sd_ble_gap_tx_power_set(BLE_GAP_TX_POWER_ROLE_ADV,
                                     handle_,
-                                    active_->dt_tx_power_);
+                                    static_cast<uint8_t>(active_->dt_tx_power_));
     }
 #else // NRFCXX_SOFTDEVICE_IS_
 #error softdevice not supported
