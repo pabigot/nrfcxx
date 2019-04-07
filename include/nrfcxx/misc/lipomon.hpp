@@ -216,14 +216,15 @@ public:
    * error code. */
   int power_source () const;
 
+protected:
+  int lpsm_process_ (int& delay,
+                     process_flags_type& pf) override;
+
 private:
   using mutex_type = periph::GPIOTE::sense_listener::mutex_type;
   using adc_mutex_type = periph::ADCClient::mutex_type;
 
   void callback_bi_ (const periph::GPIOTE::sense_status_type* sp);
-
-  int lpsm_process_ (int& delay,
-                     process_flags_type& pf) override;
 
   periph::GPIOTE::sense_listener listener_;
 
