@@ -142,6 +142,11 @@ struct ADC_Peripheral : public ADC_Base
     return 0;
   }
 
+  static uint16_t calibrate_count ()
+  {
+    return 0;
+  }
+
   static int start_bi ()
   {
     enable_bi();

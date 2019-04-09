@@ -36,6 +36,7 @@ enable_pinreset ()
 }
 
 bool SAADC_Peripheral::calibrating_bi_;
+uint16_t SAADC_Peripheral::calibrate_count_;
 
 } // ns series
 } // ns nrf5

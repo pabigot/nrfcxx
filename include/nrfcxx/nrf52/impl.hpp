@@ -215,9 +215,16 @@ struct SAADC_Peripheral : public ADC_Base {
   static int calibrate_bi ()
   {
     enable_bi();
+    calibrate_count_ += 1;
     calibrating_bi_ = true;
     nrf5::SAADC->TASKS_CALIBRATEOFFSET = 1;
     return 1;
+  }
+
+  /** The number of times calibrate_bi() has been invoked. */
+  static uint16_t calibrate_count ()
+  {
+    return calibrate_count_;
   }
 
   static int start_bi ()
@@ -253,6 +260,8 @@ struct SAADC_Peripheral : public ADC_Base {
     }
     return *result_ptr_;
   }
+
+  static uint16_t calibrate_count_;
 
   /** `true` if the ADC is performing a calibration; `false` if it is
    * performing a conversion. */
