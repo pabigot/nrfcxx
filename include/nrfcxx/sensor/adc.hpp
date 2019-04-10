@@ -479,8 +479,7 @@ public:
    *
    * @return the estimated voltage at the divider output.  A negative
    * value is returned if the channel is not enabled. */
-  int sample_mV (size_t ci = 0,
-                 bool truncate = false) const;
+  int sample_mV (size_t ci = 0) const;
 
   /** Retrieve the latest input voltage measurement for a channel.
    *
@@ -533,18 +532,11 @@ public:
    *
    * @param ci the zero-based channel index of interest.
    *
-   * @param filter_high_negative if `true` a large positive value that
-   * might have been produced as the unsigned interpretation of a
-   * @link nrf5::series::SAADC_Peripheral::near_zero small negative
-   * value@endlink will be treated as zero.  This affects SAADC where
-   * a negative voltage can be measured at ground due to error.
-   *
    * @return the estimated resistance of the varying leg of the
    * divider.  A negative value is returned if the channel is not
    * enabled; the divider was configured to measure input voltage; or
    * no voltage was measured at the divider (open leg). */
-  int sample_Ohm (size_t ci = 0,
-                  bool filter_high_negative = false) const;
+  int sample_Ohm (size_t ci = 0) const;
 
   /** Associate a voltage regulator with the divider.
    *
@@ -904,11 +896,7 @@ using super = nrfcxx::sensor::adc::voltage_divider;
 
 public:
   /** Value of intensity() when it appears the sensor is unpopulated
-   * or failed-open.
-   *
-   * @note Due to SAADC error this value may also be returned for a
-   * shorted sensor.  See
-   * nrf5::series::SAADC_Peripheral::near_zero. */
+   * or failed-open. */
   static constexpr uint8_t OPEN_INTENSITY = 0U;
 
   /** Value of intensity() when it appears the sensor is shorted. */

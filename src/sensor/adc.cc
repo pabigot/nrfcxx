@@ -182,16 +182,11 @@ voltage_divider::regulator_delay (int delay_utt)
 }
 
 int
-voltage_divider::sample_mV (size_t ci,
-                            bool truncate) const
+voltage_divider::sample_mV (size_t ci) const
 {
   int rv = -1;
   auto m16 = sample_adc16(ci);
   if (0 <= m16) {
-    /* Round to zero (avoids really high voltages near SAADC zero */
-    if (truncate && peripheral::near_zero(m16)) {
-      m16 = 0;
-    }
     rv = measurement_mV(m16);
   }
   return rv;
@@ -203,26 +198,19 @@ voltage_divider::input_mV (size_t ci) const
   int rv = -1;
   if ((ci < channel_count_)
       && !(FL_MEASURE_RESISTANCE & flags_)) {
-    uint16_t mV = this->sample_mV(ci, true);
+    uint16_t mV = this->sample_mV(ci);
     rv = uint64_t{mV} * (r1_Ohm + r2_Ohm) / r2_Ohm;
   }
   return rv;
 }
 
 int
-voltage_divider::sample_Ohm (size_t ci,
-                             bool filter_high_negative) const
+voltage_divider::sample_Ohm (size_t ci) const
 {
   int rv = -1;
   auto m16 = sample_adc16(ci);
   if ((0 <= m16)
       && (FL_MEASURE_RESISTANCE & flags_)) {
-    /* Large values indistinguishable from zero shall be zero. */
-    if (filter_high_negative
-        && ((1 << 15) < m16)
-        && peripheral::near_zero(m16)) {
-      m16 = 0;
-    }
     rv = measurement_Ohm(m16);
   }
   return rv;
@@ -416,15 +404,11 @@ light_intensity::intensity () const
   static constexpr auto BRIGHT_lg = 4.60517018598809136803;
   static constexpr auto DARK_Ohm = 100'000'000U;
   static constexpr auto DARK_lg = 18.42068074395236547214;
-  unsigned int light_Ohm = sample_Ohm(0, true);
+  unsigned int light_Ohm = sample_Ohm(0);
   if (BRIGHT_Ohm > light_Ohm) {
     return SHORTED_INTENSITY;
   }
   if (DARK_Ohm < light_Ohm) {
-    /* @todo Correction of the resistance through
-     * SAADC_Peripheral::near_zero might land us here instead of
-     * SHORTED for very high measured voltages.  That could probably
-     * be avoided by using GAIN_Gain1_6 along with REFSEL_VDD1_4. */
     return OPEN_INTENSITY;
   }
   auto light_lg = log(light_Ohm);

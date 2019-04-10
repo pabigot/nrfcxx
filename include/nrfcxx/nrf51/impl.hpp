@@ -25,31 +25,6 @@ struct ADC_Peripheral : public ADC_Base
   /** nRF51 reference voltage is 1.2 V. */
   static constexpr unsigned int VBG_mV = 1200;
 
-  /** ADC offset error is documented +/- 2%, with a 1.5% error for
-   * VBG.  Worst case this would be around bit 5 for an 8-bit
-   * acquisition.
-   *
-   * In practice SAADC has 9 bits of accuracy, and ADC does much
-   * better than SAADC (at least for repeatability).  Make this the
-   * same as SAADC. */
-  static constexpr uint16_t TOLERANCE_adc16 = (1U << 7);
-
-  /** Test whether a value appears to be indistinguishable from zero.
-   *
-   * This tests whether a normalized ADC result is within
-   * #TOLERANCE_adc16 of zero, handling the case where the SAADC
-   * result was a small negative that appears as a large unsigned
-   * measurement.
-   *
-   * @param v_adc16 a normalized ADC result.
-   *
-   * @return true iff the value is within #TOLERANCE_adc16 of zero. */
-  static constexpr bool near_zero (uint16_t v_adc16)
-  {
-    return ((TOLERANCE_adc16 > v_adc16)
-            || (v_adc16 >= ((1U << 16) - TOLERANCE_adc16)));
-  }
-
   /** Helper to build up a ADC `CONFIG`.
    *
    * @param ain a negative value to indicate the input is not from an
