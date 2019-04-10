@@ -446,11 +446,24 @@ public:
 
   /** Retrieve the latest raw measurement for a channel.
    *
+   * To simplify processing all results are normalized to a 16-bit
+   * single-ended or 15-bit differential result.  I.e. if the result
+   * is from a single-ended calculation the returned value should be
+   * cast to `uint16_t` and the value range will be 0 to 65535: a
+   * 12-bit acquisition will have been shifted up so the low 4 bits
+   * are zero.  If the result is from a differential calculation the
+   * returned value should be cast to `int16_t` and interpreted as a
+   * signed value from the range -32768 to 32767.
+   *
+   * The application is responsible for knowing whether the collection
+   * was single-ended or differential.
+   *
    * @param ci the zero-based channel index of interest.
    *
-   * @return the ADC count measurement at the divider output,
-   * expressed as a normalized unsigned 16-bit ADC measurement.  A
-   * negative value is returned if the channel is not enabled. */
+   * @return the non-negative ADC count measurement at the divider
+   * output, expressed as an ADC measurement normalized as described
+   * above.  A negative value is returned if the channel is not
+   * enabled. */
   int sample_adc16 (size_t ci = 0) const
   {
     int rv = -1;

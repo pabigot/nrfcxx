@@ -230,6 +230,23 @@ struct SAADC_Peripheral : public ADC_Base {
   static int start_bi ()
   {
     enable_bi();
+
+    /* Walk channels to determine for each enabled channel whether
+     * it's configured for differential mode.  This changes how we
+     * interpret the result. */
+    channel_dm_ = 0;
+    uint8_t res_bit = 1U;
+    for (auto ci = 0U; ci < 8; ++ci) {
+      auto chp = nrf5::SAADC->CH + ci;
+      if (chp->PSELP != (SAADC_CH_PSELP_PSELP_NC << SAADC_CH_PSELP_PSELP_Pos)) {
+        if ((SAADC_CH_CONFIG_MODE_Diff << SAADC_CH_CONFIG_MODE_Pos)
+            == (SAADC_CH_CONFIG_MODE_Msk & nrf5::SAADC->CH[ci].CONFIG)) {
+          channel_dm_ |= res_bit;
+        }
+        res_bit <<= 1;
+      }
+    }
+
     calibrating_bi_ = false;
     nrf5::SAADC->TASKS_START = 1;
     return 1;
@@ -255,13 +272,29 @@ struct SAADC_Peripheral : public ADC_Base {
     // SAADC_RESOLUTION_VAL_Msk we could end up with a negative
     // shift.
     unsigned int shift16 = 8 - 2 * ((nrf5::SAADC->RESOLUTION & 0x03) >> SAADC_RESOLUTION_VAL_Pos);
+    uint8_t res_bit = 1U;
     while (rp < rpe) {
-      *rp++ <<= shift16;
+      /* SAADC result is signed.  If the configuration was for
+       * differential mode, store the signed value normalized for
+       * 2^15-1 maximum.  If it was for single-ended, translate any
+       * negative result to zero and normalize for 2^16-1 maximum */
+      int16_t raw = *rp;
+      if (channel_dm_ & res_bit) {
+        *rp++ = raw << (shift16 - 1);
+      } else {
+        if (0 > raw) {
+          raw = 0;
+        }
+        *rp++ = raw << shift16;
+      }
     }
     return *result_ptr_;
   }
 
   static uint16_t calibrate_count_;
+
+  /** Bits specifying which result values are signed. */
+  static uint8_t channel_dm_;
 
   /** `true` if the ADC is performing a calibration; `false` if it is
    * performing a conversion. */

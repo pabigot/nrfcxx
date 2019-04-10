@@ -35,8 +35,9 @@ enable_pinreset ()
   while (!NVMC->READY);
 }
 
-bool SAADC_Peripheral::calibrating_bi_;
 uint16_t SAADC_Peripheral::calibrate_count_;
+uint8_t SAADC_Peripheral::channel_dm_;
+bool SAADC_Peripheral::calibrating_bi_;
 
 } // ns series
 } // ns nrf5
