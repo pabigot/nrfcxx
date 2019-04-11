@@ -111,18 +111,17 @@ namespace board {
 
 /* Antenna source is controlled through a SKY13351 SPDT switch.
  *
- * VC1 connects to the PCB antenna.  VC2 connects to the uFL
- * connector.
+ * VC1 connects to the u.FL antenna.  VC2 connects to the PCB antenna.
  *
- * If neither switch is driven high the Xenon signal strength is very
+ * If neither switch is driven low the Xenon signal strength is very
  * poor.  board::initialize() sets both these GPIOs to WRONLY and
  * enables the PCB antenna.
  *
  * The SKY switch is documented to use 5 uA, provided through the VCx
  * input, but in practice it doesn't appear to increase nop current
  * draw significantly. */
-#define NRFCXX_BOARD_PSEL_SKY_PCBEN 24
-#define NRFCXX_BOARD_PSEL_SKY_UFLEN 25
+#define NRFCXX_BOARD_PSEL_SKY_UFLn 24
+#define NRFCXX_BOARD_PSEL_SKY_PCBn 25
 
 constexpr bool button_active_low = true;
 constexpr bool has_lfxt = true;

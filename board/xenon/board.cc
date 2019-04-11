@@ -43,17 +43,17 @@ bool
 external_antenna (int on)
 {
   bool rv = on;
-  auto pcben = gpio::pin_reference::create(NRFCXX_BOARD_PSEL_SKY_PCBEN);
-  auto uflen = gpio::pin_reference::create(NRFCXX_BOARD_PSEL_SKY_UFLEN);
+  auto pcbn = gpio::pin_reference::create(NRFCXX_BOARD_PSEL_SKY_PCBn);
+  auto ufln = gpio::pin_reference::create(NRFCXX_BOARD_PSEL_SKY_UFLn);
 
   if (0 > on) {
-    rv = uflen.is_set();
+    rv = !ufln.is_set();
   } else if (rv) {
-    pcben.clear();
-    uflen.set();
+    pcbn.set();
+    ufln.clear();
   } else {
-    pcben.set();
-    uflen.clear();
+    pcbn.clear();
+    ufln.set();
   }
   return rv;
 }
@@ -70,11 +70,11 @@ initialize (bool enable_hfxt)
 
   /* Configure for the PCB antenna. */
   {
-    auto pcben = gpio::pin_reference::create(NRFCXX_BOARD_PSEL_SKY_PCBEN);
-    auto uflen = gpio::pin_reference::create(NRFCXX_BOARD_PSEL_SKY_UFLEN);
+    auto pcbn = gpio::pin_reference::create(NRFCXX_BOARD_PSEL_SKY_PCBn);
+    auto ufln = gpio::pin_reference::create(NRFCXX_BOARD_PSEL_SKY_UFLn);
 
-    pcben.configure(gpio::PIN_CNF_WRONLY);
-    uflen.configure(gpio::PIN_CNF_WRONLY);
+    pcbn.configure(gpio::PIN_CNF_WRONLY);
+    ufln.configure(gpio::PIN_CNF_WRONLY);
     external_antenna(false);
   }
 
