@@ -1,0 +1,6 @@
+# SPDX-License-Identifier: CC0-1.0
+# Written in 2015-2019 by Peter A. Bigot
+
+# Read into configure script to set board-specific defaults
+TARGET_PRODUCT=nrf52840
+TARGET_VARIANT=xxaa
