@@ -243,6 +243,29 @@ struct peripheral {
    *
    * * For other peripherals the value is zero. */
   const uint8_t AUX;
+
+  /** Assign to the Peripheral Power Control register.
+   *
+   * The Peripheral Power Control register must be cleared and set to
+   * recover from certain errata, including PAN-56 for nRF51 TWI,
+   * PAN-141 for nRF52 NFCT, and PAN-212 for SAADC.  The effect is to
+   * clear some, but not necessarily all, peripheral registers
+   * including undocumented ones.
+   *
+   * @note This register is only declared in @ref Type for peripherals
+   * that have an anomaly that requires it, but it appears to exist in
+   * all peripherals.  Whether a delay (5 us for nRF51-PAN56) or a
+   * read of the power register (PAN-141 NFCT) or nothing (PAN-212
+   * SAADC) is required between the off and on commands is
+   * anomaly-specific.
+   *
+   * @param on zero/`false` to turn off power; non-zero/`true` to turn
+   * on power. */
+  void set_power (bool on) const
+  {
+    auto power = reinterpret_cast<volatile uint32_t*>(BASE + 0x0FFC);
+    *power = on;
+  }
 };
 
 /** A traits type identifying GPIO peripheral instances.

@@ -198,9 +198,9 @@ TWI::reset_periph_ ()
 #endif
   twi_->ENABLE = (TWI_ENABLE_ENABLE_Disabled << TWI_ENABLE_ENABLE_Pos);
 #if (NRF51 - 0)
-  twi_->POWER = 0;
+  twi_.set_power(false);
   delay_us(5);
-  twi_->POWER = 1;
+  twi_.set_power(true);
 #endif /* NRF51 */
 
   auto ec = set_enabled_(true);
